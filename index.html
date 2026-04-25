@@ -555,7 +555,7 @@
     <a onclick="showPage('volunteers')" id="nav-vol">Volunteer</a>
     <a onclick="showPage('about')" id="nav-about">About</a>
   </div>
-  <button class="nav-cta">Sign up</button>
+  <button class="nav-cta" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Sign up</button>
 </nav>
 
 <!-- ═══════════════════════════════════ HOME ═══════════════════════════════════ -->
@@ -676,7 +676,7 @@
   </div>
 
 
-  <div class="mail-strip">
+  <div class="mail-strip" id="signup">
     <h3>Be first to the start line.</h3>
     <div class="mail-right">
       <div class="mail-form">
