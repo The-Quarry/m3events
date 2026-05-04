@@ -1033,11 +1033,15 @@
   <div class="mail-strip" id="signup">
     <h3>Be first to the start line.</h3>
     <div class="mail-right">
-      <div class="mail-form">
-        <input type="email" placeholder="your@email.com"/>
-        <button>Sign up</button>
-      </div>
-      <p class="consent-txt">By signing up you agree to receive email updates from M3 Events. We'll never share your details with third parties. You can unsubscribe at any time.</p>
+      <form id="signup-form">
+        <div class="mail-form">
+          <input type="email" id="signup-email" placeholder="your@email.com" required/>
+          <button type="submit" id="signup-btn">Sign up</button>
+        </div>
+        <p class="consent-txt">By signing up you agree to receive email updates from M3 Events. We'll never share your details with third parties. You can unsubscribe at any time.</p>
+        <p id="signup-success" style="display:none;margin-top:10px;color:#fff;font-weight:600;font-style:italic;font-size:13px">✓ You're on the list — we'll be in touch!</p>
+        <p id="signup-error" style="display:none;margin-top:10px;color:#fff;font-style:italic;font-size:13px;opacity:0.8">Something went wrong — please try again.</p>
+      </form>
     </div>
   </div>
 
@@ -1736,6 +1740,46 @@ document.addEventListener('DOMContentLoaded', function() {
       navItems.forEach(i => i.classList.remove('open'));
     }
   });
+
+  // ── Mailing list signup ──
+  const signupForm = document.getElementById('signup-form');
+  if (signupForm) {
+    signupForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('signup-btn');
+      const email = document.getElementById('signup-email').value;
+      const successMsg = document.getElementById('signup-success');
+      const errorMsg = document.getElementById('signup-error');
+
+      btn.textContent = 'Sending…';
+      btn.disabled = true;
+      successMsg.style.display = 'none';
+      errorMsg.style.display = 'none';
+
+      const data = {
+        email: email,
+        subscribed_at: new Date().toLocaleString('en-GB')
+      };
+
+      fetch('https://hooks.zapier.com/hooks/catch/18013361/uvx5e19/', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(function() {
+        successMsg.style.display = 'block';
+        signupForm.reset();
+        btn.textContent = 'Signed up ✓';
+      })
+      .catch(function() {
+        errorMsg.style.display = 'block';
+        btn.textContent = 'Sign up';
+        btn.disabled = false;
+      });
+    });
+  }
 
   // ── Volunteer form ──
   const form = document.getElementById('volunteer-form');
