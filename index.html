@@ -1547,29 +1547,30 @@
 
   <div class="vol-form">
     <h2 class="ev-h2" style="margin-bottom:8px">Sign up to volunteer</h2>
+    <form id="volunteer-form">
     <p class="ev-p" style="margin-bottom:24px">Fill in the form and we'll be in touch with all the details ahead of your chosen event. Volunteers must be aged 18 or older.</p>
     <div class="form-grid">
-      <div class="field"><label>First name</label><input type="text" placeholder="Jane"/></div>
-      <div class="field"><label>Last name</label><input type="text" placeholder="Smith"/></div>
+      <div class="field"><label>First name</label><input type="text" name="first_name" placeholder="Jane"/></div>
+      <div class="field"><label>Last name</label><input type="text" name="last_name" placeholder="Smith"/></div>
     </div>
     <div class="form-grid">
-      <div class="field"><label>Email address</label><input type="email" placeholder="jane@example.com"/></div>
-      <div class="field"><label>Phone number (optional)</label><input type="tel" placeholder="+44 7700 000000"/></div>
+      <div class="field"><label>Email address</label><input type="email" name="email" placeholder="jane@example.com"/></div>
+      <div class="field"><label>Phone number (optional)</label><input type="tel" name="phone" placeholder="+44 7700 000000"/></div>
     </div>
     <div class="form-grid">
       <div class="field">
         <label>Which event(s)?</label>
         <div class="check-group">
           <div class="check-option">
-            <input type="checkbox" id="ev-ddo">
+            <input type="checkbox" id="ev-ddo" name="event_ddo">
             <label for="ev-ddo">Donkey Drop Out — 15/16 Aug 2026</label>
           </div>
           <div class="check-option">
-            <input type="checkbox" id="ev-gu36">
+            <input type="checkbox" id="ev-gu36" name="event_gu36">
             <label for="ev-gu36">GU36 — 16 May 2027</label>
           </div>
           <div class="check-option">
-            <input type="checkbox" id="ev-any">
+            <input type="checkbox" id="ev-any" name="event_any">
             <label for="ev-any">Any / all future events</label>
           </div>
         </div>
@@ -1578,23 +1579,23 @@
       <label>Preferred role</label>
       <div class="check-group">
         <div class="check-option">
-          <input type="checkbox" id="role-any">
+          <input type="checkbox" id="role-any"name="role_any"> 
           <label for="role-any">No preference</label>
         </div>
         <div class="check-option">
-          <input type="checkbox" id="role-aid">
+          <input type="checkbox" id="role-aid" name="role_aid">
           <label for="role-aid">Aid station crew</label>
         </div>
         <div class="check-option">
-          <input type="checkbox" id="role-start">
+          <input type="checkbox" id="role-start" name="role_start">
           <label for="role-start">Start / finish team</label>
         </div>
         <div class="check-option">
-          <input type="checkbox" id="role-marshal">
+          <input type="checkbox" id="role-marshal" name="role_marshal">
           <label for="role-marshal">Course marshal</label>
         </div>
         <div class="check-option">
-          <input type="checkbox" id="role-sweeper">
+          <input type="checkbox" id="role-sweeper" name="role_sweeper">
           <label for="role-sweeper">Course sweeper</label>
         </div>
       </div>
@@ -1602,17 +1603,20 @@
     </div>
     <div class="field" style="margin-bottom:16px">
       <label>Anything else we should know?</label>
-      <textarea placeholder="Availability, previous volunteering experience, any questions…"></textarea>
+      <textarea name="other_info" placeholder="Availability, previous volunteering experience, any questions…"></textarea>
     </div>
     <div class="cb-row">
-      <input type="checkbox" id="consent1"/>
+      <input type="checkbox" id="consent1" name="consent_comms">
       <label class="cb-label" for="consent1">I agree to receive email updates from M3 Events about volunteering opportunities and upcoming races. You can unsubscribe at any time.</label>
     </div>
     <div class="cb-row">
-      <input type="checkbox" id="consent2"/>
+      <input type="checkbox" id="consent2" name="consent_marketing">
       <label class="cb-label" for="consent2">I'm happy to receive occasional news and offers from M3 Events (optional).</label>
     </div>
-    <button class="btn btn-green" style="margin-top:8px">Submit volunteer form</button>
+    <button type="submit" class="btn btn-green" style="margin-top:8px" id="vol-submit">Submit volunteer form</button>
+      <p id="vol-success" style="display:none;margin-top:16px;color:var(--m3-green);font-size:14px;font-style:italic">✓ Thanks! We'll be in touch ahead of the event.</p>
+      <p id="vol-error" style="display:none;margin-top:16px;color:#f0855a;font-size:14px;font-style:italic">Something went wrong — please try again or email us directly.</p>
+    </form>
   </div>
 
   <a class="back-link" onclick="showPage('home')">← Back to all events</a>
@@ -1738,6 +1742,65 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!e.target.closest('.nav-item')) {
       navItems.forEach(i => i.classList.remove('open'));
     }
+  });
+});
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('volunteer-form');
+  if (!form) return;
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('vol-submit');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+
+    // Gather checkbox values as readable strings
+    const events = [];
+    if (document.getElementById('ev-ddo').checked) events.push('Donkey Drop Out – 15/16 Aug 2026');
+    if (document.getElementById('ev-gu36').checked) events.push('GU36 – 16 May 2027');
+    if (document.getElementById('ev-any').checked) events.push('Any / all future events');
+
+    const roles = [];
+    if (document.getElementById('role-any').checked) roles.push('No preference');
+    if (document.getElementById('role-aid').checked) roles.push('Aid station crew');
+    if (document.getElementById('role-start').checked) roles.push('Start / finish team');
+    if (document.getElementById('role-marshal').checked) roles.push('Course marshal');
+    if (document.getElementById('role-sweeper').checked) roles.push('Course sweeper');
+
+    const data = {
+      first_name:         form.first_name.value,
+      last_name:          form.last_name.value,
+      email:              form.email.value,
+      phone:              form.phone.value,
+      events:             events.join(', '),
+      roles:              roles.join(', '),
+      other_info:         form.other_info.value,
+      consent_comms:      document.getElementById('consent1').checked ? 'Yes' : 'No',
+      consent_marketing:  document.getElementById('consent2').checked ? 'Yes' : 'No',
+      submitted_at:       new Date().toLocaleString('en-GB')
+    };
+
+    fetch('https://hooks.zapier.com/hooks/catch/18013361/uvx2ivu/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(res => {
+      if (res.ok || res.type === 'opaque') {
+        document.getElementById('vol-success').style.display = 'block';
+        document.getElementById('vol-error').style.display = 'none';
+        form.reset();
+        btn.textContent = 'Submitted ✓';
+      } else {
+        throw new Error('Bad response');
+      }
+    })
+    .catch(() => {
+      document.getElementById('vol-error').style.display = 'block';
+      btn.textContent = 'Submit volunteer form';
+      btn.disabled = false;
+    });
   });
 });
 </script>
