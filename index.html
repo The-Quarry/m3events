@@ -1783,6 +1783,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetch('https://hooks.zapier.com/hooks/catch/18013361/uvx2ivu/', {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     })
