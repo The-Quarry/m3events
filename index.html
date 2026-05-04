@@ -1705,6 +1705,7 @@ function showPage(id) {
   if (map[id]) document.getElementById(map[id]).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
 function showTab(id, event) {
   document.querySelectorAll('.manual-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.manual-tab').forEach(t => t.classList.remove('active'));
@@ -1712,39 +1713,31 @@ function showTab(id, event) {
   if (panel) panel.classList.add('active');
   event.target.classList.add('active');
 }
-// Mobile dropdown toggle
-document.addEventListener('DOMContentLoaded', function() {
-  const navItems = document.querySelectorAll('.nav-item');
 
+document.addEventListener('DOMContentLoaded', function() {
+
+  // ── Mobile nav dropdown ──
+  const navItems = document.querySelectorAll('.nav-item');
   navItems.forEach(function(item) {
     const link = item.querySelector('a');
     const dropdown = item.querySelector('.nav-dropdown');
     if (!dropdown) return;
-
     link.addEventListener('click', function(e) {
       const isMobile = window.matchMedia('(hover: none)').matches;
-      if (!isMobile) return; // desktop: let CSS hover handle it
-
+      if (!isMobile) return;
       e.preventDefault();
       const isOpen = item.classList.contains('open');
-
-      // Close all dropdowns cleanly via class, not inline style
       navItems.forEach(i => i.classList.remove('open'));
-
-      if (!isOpen) {
-        item.classList.add('open');
-      }
+      if (!isOpen) item.classList.add('open');
     });
   });
-
-  // Close on tap outside
   document.addEventListener('click', function(e) {
     if (!e.target.closest('.nav-item')) {
       navItems.forEach(i => i.classList.remove('open'));
     }
   });
-});
-document.addEventListener('DOMContentLoaded', function() {
+
+  // ── Volunteer form ──
   const form = document.getElementById('volunteer-form');
   if (!form) return;
 
@@ -1752,33 +1745,37 @@ document.addEventListener('DOMContentLoaded', function() {
     e.preventDefault();
 
     const btn = document.getElementById('vol-submit');
+    const successMsg = document.getElementById('vol-success');
+    const errorMsg = document.getElementById('vol-error');
+
     btn.textContent = 'Sending…';
     btn.disabled = true;
+    successMsg.style.display = 'none';
+    errorMsg.style.display = 'none';
 
-    // Gather checkbox values as readable strings
     const events = [];
-    if (document.getElementById('ev-ddo').checked) events.push('Donkey Drop Out – 15/16 Aug 2026');
+    if (document.getElementById('ev-ddo').checked)  events.push('Donkey Drop Out – 15/16 Aug 2026');
     if (document.getElementById('ev-gu36').checked) events.push('GU36 – 16 May 2027');
-    if (document.getElementById('ev-any').checked) events.push('Any / all future events');
+    if (document.getElementById('ev-any').checked)  events.push('Any / all future events');
 
     const roles = [];
-    if (document.getElementById('role-any').checked) roles.push('No preference');
-    if (document.getElementById('role-aid').checked) roles.push('Aid station crew');
-    if (document.getElementById('role-start').checked) roles.push('Start / finish team');
+    if (document.getElementById('role-any').checked)     roles.push('No preference');
+    if (document.getElementById('role-aid').checked)     roles.push('Aid station crew');
+    if (document.getElementById('role-start').checked)   roles.push('Start / finish team');
     if (document.getElementById('role-marshal').checked) roles.push('Course marshal');
     if (document.getElementById('role-sweeper').checked) roles.push('Course sweeper');
 
     const data = {
-      first_name:         form.first_name.value,
-      last_name:          form.last_name.value,
-      email:              form.email.value,
-      phone:              form.phone.value,
-      events:             events.join(', '),
-      roles:              roles.join(', '),
-      other_info:         form.other_info.value,
-      consent_comms:      document.getElementById('consent1').checked ? 'Yes' : 'No',
-      consent_marketing:  document.getElementById('consent2').checked ? 'Yes' : 'No',
-      submitted_at:       new Date().toLocaleString('en-GB')
+      first_name:        document.querySelector('[name="first_name"]').value,
+      last_name:         document.querySelector('[name="last_name"]').value,
+      email:             document.querySelector('[name="email"]').value,
+      phone:             document.querySelector('[name="phone"]').value,
+      events:            events.join(', ') || 'None selected',
+      roles:             roles.join(', ') || 'None selected',
+      other_info:        document.querySelector('[name="other_info"]').value,
+      consent_comms:     document.getElementById('consent1').checked ? 'Yes' : 'No',
+      consent_marketing: document.getElementById('consent2').checked ? 'Yes' : 'No',
+      submitted_at:      new Date().toLocaleString('en-GB')
     };
 
     fetch('https://hooks.zapier.com/hooks/catch/18013361/uvx2ivu/', {
@@ -1787,22 +1784,18 @@ document.addEventListener('DOMContentLoaded', function() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     })
-    .then(res => {
-      if (res.ok || res.type === 'opaque') {
-        document.getElementById('vol-success').style.display = 'block';
-        document.getElementById('vol-error').style.display = 'none';
-        form.reset();
-        btn.textContent = 'Submitted ✓';
-      } else {
-        throw new Error('Bad response');
-      }
+    .then(function() {
+      successMsg.style.display = 'block';
+      form.reset();
+      btn.textContent = 'Submitted ✓';
     })
-    .catch(() => {
-      document.getElementById('vol-error').style.display = 'block';
+    .catch(function() {
+      errorMsg.style.display = 'block';
       btn.textContent = 'Submit volunteer form';
       btn.disabled = false;
     });
   });
+
 });
 </script>
 </body>
