@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>M3 Events — Guernsey Trail Events</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Barlow:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
@@ -1090,9 +1093,8 @@
     </div>
     <div class="ev-section">
       <h2 class="ev-h2">Course &amp; GPX</h2>
-      <p class="ev-p">The route will be confirmed and released closer to the event. GPX files and course notes will be available to download here once finalised.</p>
-      <div class="map-ph"><span>Course map — coming soon</span></div>
-      <button class="dl-btn">GPX download (coming soon)</button>
+      <div id="ddo-map" style="height:380px;border-radius:6px;overflow:hidden;margin:14px 0;border:1px solid rgba(255,255,255,0.08)"></div>
+      <a class="dl-btn" href="gpx/ddo-course.gpx" download>⬇ GPX file download</a>
     </div>
     <div class="ev-section" id="event-manual">
       <h2 class="ev-h2">Event manual</h2>
@@ -1781,6 +1783,33 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+
+  // ── DDO course map ──
+const mapEl = document.getElementById('ddo-map');
+if (mapEl) {
+  const map = L.map('ddo-map', { zoomControl: true, scrollWheelZoom: false });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO',
+    maxZoom: 17
+  }).addTo(map);
+
+  new L.GPX('gpx/ddo-course.gpx', {
+    async: true,
+    marker_options: {
+      startIconUrl: '',
+      endIconUrl: '',
+      shadowUrl: ''
+    },
+    polyline_options: {
+      color: '#7c3aed',
+      weight: 4,
+      opacity: 0.85
+    }
+  }).on('loaded', function(e) {
+    map.fitBounds(e.target.getBounds(), { padding: [20, 20] });
+  }).addTo(map);
+}
 
   // ── Volunteer form ──
   const form = document.getElementById('volunteer-form');
