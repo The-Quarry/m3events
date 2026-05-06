@@ -1704,6 +1704,28 @@
 </div>
 
 <script>
+// ── DDO map ──
+let ddoMapInitialised = false;
+
+function initDDOMap() {
+  if (ddoMapInitialised) return;
+  const mapEl = document.getElementById('ddo-map');
+  if (!mapEl) return;
+  ddoMapInitialised = true;
+  const map = L.map('ddo-map', { zoomControl: true, scrollWheelZoom: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO',
+    maxZoom: 17
+  }).addTo(map);
+  new L.GPX('gpx/DDO.gpx', {
+    async: true,
+    marker_options: { startIconUrl: '', endIconUrl: '', shadowUrl: '' },
+    polyline_options: { color: '#7c3aed', weight: 4, opacity: 0.85 }
+  }).on('loaded', function(e) {
+    map.fitBounds(e.target.getBounds(), { padding: [20, 20] });
+  }).addTo(map);
+}
+
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
@@ -1711,12 +1733,8 @@ function showPage(id) {
   const map = { home: 'nav-home', 'getting-here': 'nav-gh', volunteers: 'nav-vol', about: 'nav-about', ddo: 'nav-home', gu36: 'nav-home' };
   if (map[id]) document.getElementById(map[id]).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
-
-  // Initialise map when DDO page first becomes visible
-  if (id === 'ddo') {
-    setTimeout(initDDOMap, 100);
-  }
-}}
+  if (id === 'ddo') setTimeout(initDDOMap, 100);
+}
 
 function showTab(id, event) {
   document.querySelectorAll('.manual-panel').forEach(p => p.classList.remove('active'));
@@ -1754,25 +1772,17 @@ document.addEventListener('DOMContentLoaded', function() {
   if (signupForm) {
     signupForm.addEventListener('submit', function(e) {
       e.preventDefault();
-
       const btn = document.getElementById('signup-btn');
       const email = document.getElementById('signup-email').value;
       const successMsg = document.getElementById('signup-success');
       const errorMsg = document.getElementById('signup-error');
-
       btn.textContent = 'Sending…';
       btn.disabled = true;
       successMsg.style.display = 'none';
       errorMsg.style.display = 'none';
-
-      const data = {
-        email: email,
-        subscribed_at: new Date().toLocaleString('en-GB')
-      };
-
+      const data = { email: email, subscribed_at: new Date().toLocaleString('en-GB') };
       fetch('https://hooks.zapier.com/hooks/catch/18013361/uvx5e19/', {
-        method: 'POST',
-        mode: 'no-cors',
+        method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       })
@@ -1789,68 +1799,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-// ── DDO course map ──
-let ddoMapInitialised = false;
-
-function initDDOMap() {
-  if (ddoMapInitialised) return;
-  const mapEl = document.getElementById('ddo-map');
-  if (!mapEl) return;
-
-  ddoMapInitialised = true;
-
-  const map = L.map('ddo-map', { zoomControl: true, scrollWheelZoom: false });
-
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap © CARTO',
-    maxZoom: 17
-  }).addTo(map);
-
-  new L.GPX('gpx/DDO.gpx', {
-    async: true,
-    marker_options: {
-      startIconUrl: '',
-      endIconUrl: '',
-      shadowUrl: ''
-    },
-    polyline_options: {
-      color: '#7c3aed',
-      weight: 4,
-      opacity: 0.85
-    }
-  }).on('loaded', function(e) {
-    map.fitBounds(e.target.getBounds(), { padding: [20, 20] });
-  }).addTo(map);
-}
-
   // ── Volunteer form ──
   const form = document.getElementById('volunteer-form');
   if (!form) return;
-
   form.addEventListener('submit', function(e) {
     e.preventDefault();
-
     const btn = document.getElementById('vol-submit');
     const successMsg = document.getElementById('vol-success');
     const errorMsg = document.getElementById('vol-error');
-
     btn.textContent = 'Sending…';
     btn.disabled = true;
     successMsg.style.display = 'none';
     errorMsg.style.display = 'none';
-
     const events = [];
     if (document.getElementById('ev-ddo').checked)  events.push('Donkey Drop Out – 15/16 Aug 2026');
     if (document.getElementById('ev-gu36').checked) events.push('GU36 – 16 May 2027');
     if (document.getElementById('ev-any').checked)  events.push('Any / all future events');
-
     const roles = [];
     if (document.getElementById('role-any').checked)     roles.push('No preference');
     if (document.getElementById('role-aid').checked)     roles.push('Aid station crew');
     if (document.getElementById('role-start').checked)   roles.push('Start / finish team');
     if (document.getElementById('role-marshal').checked) roles.push('Course marshal');
     if (document.getElementById('role-sweeper').checked) roles.push('Course sweeper');
-
     const data = {
       first_name:        document.querySelector('[name="first_name"]').value,
       last_name:         document.querySelector('[name="last_name"]').value,
@@ -1863,10 +1833,8 @@ function initDDOMap() {
       consent_marketing: document.getElementById('consent2').checked ? 'Yes' : 'No',
       submitted_at:      new Date().toLocaleString('en-GB')
     };
-
     fetch('https://hooks.zapier.com/hooks/catch/18013361/uvx2ivu/', {
-      method: 'POST',
-      mode: 'no-cors',
+      method: 'POST', mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     })
@@ -1882,7 +1850,7 @@ function initDDOMap() {
     });
   });
 
-});
+}); // end DOMContentLoaded
 </script>
 </body>
 </html>
