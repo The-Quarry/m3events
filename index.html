@@ -1711,7 +1711,12 @@ function showPage(id) {
   const map = { home: 'nav-home', 'getting-here': 'nav-gh', volunteers: 'nav-vol', about: 'nav-about', ddo: 'nav-home', gu36: 'nav-home' };
   if (map[id]) document.getElementById(map[id]).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+
+  // Initialise map when DDO page first becomes visible
+  if (id === 'ddo') {
+    setTimeout(initDDOMap, 100);
+  }
+}}
 
 function showTab(id, event) {
   document.querySelectorAll('.manual-panel').forEach(p => p.classList.remove('active'));
@@ -1784,9 +1789,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // ── DDO course map ──
-const mapEl = document.getElementById('ddo-map');
-if (mapEl) {
+// ── DDO course map ──
+let ddoMapInitialised = false;
+
+function initDDOMap() {
+  if (ddoMapInitialised) return;
+  const mapEl = document.getElementById('ddo-map');
+  if (!mapEl) return;
+
+  ddoMapInitialised = true;
+
   const map = L.map('ddo-map', { zoomControl: true, scrollWheelZoom: false });
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
