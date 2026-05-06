@@ -359,8 +359,16 @@
     background: repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(255,255,255,0.015) 60px, rgba(255,255,255,0.015) 61px);
     pointer-events: none;
   }
-  .ev-hero-ddo { background: var(--ddo-bg); border-bottom: 4px solid var(--ddo-primary); }
-  .ev-hero-gu36 { background: var(--gu36-bg); border-bottom: 4px solid var(--gu36-primary); }
+  .ev-hero-ddo {
+    background: linear-gradient(rgba(15,10,30,0.75), rgba(15,10,30,0.92)),
+                url('images/ddo-hero.jpg') center/cover no-repeat;
+    border-bottom: 4px solid var(--ddo-primary);
+  }
+  .ev-hero-gu36 {
+    background: linear-gradient(rgba(28,18,5,0.75), rgba(28,18,5,0.92)),
+                url('images/gu36-hero.jpg') center/cover no-repeat;
+    border-bottom: 4px solid var(--gu36-primary);
+  }
   .ev-hero-vol { background: #051510; border-bottom: 4px solid var(--m3-green); }
   .ev-hero-gh { background: #05101a; border-bottom: 4px solid var(--m3-blue); }
 
