@@ -1369,9 +1369,9 @@
    
     <div class="ev-section">
       <h2 class="ev-h2">Course map &amp; GPX</h2>
-      <div class="map-ph"><span>Interactive course map — coming soon</span></div>
-      <button class="dl-btn">GPX file download</button>
-      <button class="dl-btn">Course notes PDF</button>
+      <div id="gu36-map" style="height:380px;border-radius:6px;overflow:hidden;margin:14px 0;border:1px solid rgba(255,255,255,0.08)"></div>
+      <a class="dl-btn" href="gpx/GU36_Trail_Race.gpx" download>⬇ GPX file download</a>
+
     </div>
     <div class="ev-section">
       <h2 class="ev-h2">2025 winners</h2>
@@ -1695,6 +1695,34 @@
 </div>
 
 <script>
+// ── GU36 course map ──
+let gu36MapInitialised = false;
+
+function initGU36Map() {
+  if (gu36MapInitialised) return;
+  const mapEl = document.getElementById('gu36-map');
+  if (!mapEl) return;
+  gu36MapInitialised = true;
+
+  const map = L.map('gu36-map', { zoomControl: true, scrollWheelZoom: false });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO',
+    maxZoom: 17
+  }).addTo(map);
+
+  new L.GPX('gpx/GU36_Trail_Race.gpx', {
+    async: true,
+    marker_options: { startIconUrl: '', endIconUrl: '', shadowUrl: '' },
+    polyline_options: {
+      color: '#d97706',
+      weight: 4,
+      opacity: 0.85
+    }
+  }).on('loaded', function(e) {
+    map.fitBounds(e.target.getBounds(), { padding: [20, 20] });
+  }).addTo(map);
+}
 // ── DDO map ──
 let ddoMapInitialised = false;
 
@@ -1725,6 +1753,7 @@ function showPage(id) {
   if (map[id]) document.getElementById(map[id]).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (id === 'ddo') setTimeout(initDDOMap, 100);
+  if (id === 'gu36') setTimeout(initGU36Map, 100);
 }
 
 function showTab(id, event) {
