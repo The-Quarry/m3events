@@ -1044,7 +1044,7 @@
   <footer class="site-footer">
     <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
     <div class="footer-links">
-      <a>Instagram</a><a>Facebook</a>
+      <a href="https://www.facebook.com/m3running" target="_blank">Facebook</a>
       <a onclick="showPage('getting-here')">Getting here</a>
       <a onclick="showPage('volunteers')">Volunteer</a>
       <a>Contact</a><a onclick="showPage('tc')">Terms &amp; conditions</a>
@@ -1192,7 +1192,7 @@
   <a class="back-link" onclick="showPage('home')">← Back to all events</a>
   <footer class="site-footer">
     <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
-    <div class="footer-links"><a onclick="showPage('home')">Events</a><a onclick="showPage('getting-here')">Getting here</a><a onclick="showPage('volunteers')">Volunteer</a><a>Contact</a><a onclick="showPage('tc')">Terms &amp; conditions</a></div>
+    <div class="footer-links"><a onclick="showPage('home')">Events</a><a href="https://www.facebook.com/m3running" target="_blank">Facebook</a><a onclick="showPage('getting-here')">Getting here</a><a onclick="showPage('volunteers')">Volunteer</a><a>Contact</a><a onclick="showPage('tc')">Terms &amp; conditions</a></div>
   </footer>
 </div>
 
@@ -1408,7 +1408,7 @@
   <a class="back-link" onclick="showPage('home')">← Back to all events</a>
   <footer class="site-footer">
     <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
-    <div class="footer-links"><a onclick="showPage('home')">Events</a><a onclick="showPage('getting-here')">Getting here</a><a onclick="showPage('volunteers')">Volunteer</a><a>Contact</a><a onclick="showPage('tc')">Terms &amp; conditions</a></div>
+    <div class="footer-links"><a onclick="showPage('home')">Events</a><a href="https://www.facebook.com/m3running" target="_blank">Facebook</a><a onclick="showPage('getting-here')">Getting here</a><a onclick="showPage('volunteers')">Volunteer</a><a>Contact</a><a onclick="showPage('tc')">Terms &amp; conditions</a></div>
   </footer>
 </div>
 
@@ -1484,7 +1484,7 @@
   <a class="back-link" onclick="showPage('home')">← Back to all events</a>
   <footer class="site-footer">
     <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
-    <div class="footer-links"><a onclick="showPage('home')">Events</a><a onclick="showPage('volunteers')">Volunteer</a><a>Contact</a><a onclick="showPage('tc')">Terms &amp; conditions</a></div>
+    <div class="footer-links"><a onclick="showPage('home')">Events</a><a href="https://www.facebook.com/m3running" target="_blank">Facebook</a><a onclick="showPage('volunteers')">Volunteer</a><a>Contact</a><a onclick="showPage('tc')">Terms &amp; conditions</a></div>
   </footer>
 </div>
 
@@ -1614,7 +1614,7 @@
   <a class="back-link" onclick="showPage('home')">← Back to all events</a>
   <footer class="site-footer">
     <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
-    <div class="footer-links"><a onclick="showPage('home')">Events</a><a onclick="showPage('getting-here')">Getting here</a><a>Contact</a><a onclick="showPage('tc')">Terms &amp; conditions</a></div>
+    <div class="footer-links"><a onclick="showPage('home')">Events</a><a href="https://www.facebook.com/m3running" target="_blank">Facebook</a><a onclick="showPage('getting-here')">Getting here</a><a>Contact</a><a onclick="showPage('tc')">Terms &amp; conditions</a></div>
   </footer>
 </div>
 
@@ -1638,14 +1638,26 @@
     </div>
     <div class="ev-section">
       <h2 class="ev-h2">Get in touch</h2>
-      <p class="ev-p">Questions about an event? Want to discuss sponsorship or partnership? We'd love to hear from you.</p>
-      <button class="btn btn-ghost">Contact us</button>
+      <p class="ev-p">Questions about an event? Want to discuss sponsorship or partnership? Fill in the form and we'll get back to you.</p>
+      <form id="contact-form" style="margin-top:16px">
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="field"><label>Your name</label><input type="text" name="contact_name" placeholder="Jane Smith"/></div>
+          <div class="field"><label>Email address</label><input type="email" name="contact_email" placeholder="jane@example.com"/></div>
+        </div>
+        <div class="field" style="margin-bottom:12px">
+          <label>Message</label>
+          <textarea name="contact_message" placeholder="Your question or message…" style="min-height:100px;resize:vertical;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:10px 13px;border-radius:3px;font-family:Barlow,sans-serif;font-size:14px;width:100%"></textarea>
+        </div>
+        <button type="submit" id="contact-submit" class="btn btn-ghost">Send message</button>
+        <p id="contact-success" style="display:none;margin-top:14px;color:var(--m3-green);font-size:14px;font-style:italic">✓ Message sent — we'll be in touch soon.</p>
+        <p id="contact-error" style="display:none;margin-top:14px;color:#f0855a;font-size:14px;font-style:italic">Something went wrong — please try again.</p>
+      </form>
     </div>
   </div>
   <a class="back-link" onclick="showPage('home')">← Back to home</a>
   <footer class="site-footer">
     <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
-    <div class="footer-links"><a onclick="showPage('home')">Events</a><a onclick="showPage('getting-here')">Getting here</a><a onclick="showPage('volunteers')">Volunteer</a><a>Contact</a></div>
+    <div class="footer-links"><a onclick="showPage('home')">Events</a><a href="https://www.facebook.com/m3running" target="_blank">Facebook</a><a onclick="showPage('getting-here')">Getting here</a><a onclick="showPage('volunteers')">Volunteer</a><a>Contact</a></div>
   </footer>
 </div>
 <!-- ═══════════════════════════════════ T&Cs ═══════════════════════════════════ -->
@@ -1807,6 +1819,43 @@ document.addEventListener('DOMContentLoaded', function() {
       .catch(function() {
         errorMsg.style.display = 'block';
         btn.textContent = 'Sign up';
+        btn.disabled = false;
+      });
+    });
+  }
+
+  // ── Contact form ──
+  const contactForm = document.getElementById('contact-form');
+  if (contactForm) {
+    contactForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('contact-submit');
+      const successMsg = document.getElementById('contact-success');
+      const errorMsg = document.getElementById('contact-error');
+      btn.textContent = 'Sending…';
+      btn.disabled = true;
+      successMsg.style.display = 'none';
+      errorMsg.style.display = 'none';
+      const data = {
+        name:         document.querySelector('[name="contact_name"]').value,
+        email:        document.querySelector('[name="contact_email"]').value,
+        message:      document.querySelector('[name="contact_message"]').value,
+        submitted_at: new Date().toLocaleString('en-GB')
+      };
+      fetch('https://hooks.zapier.com/hooks/catch/18013361/4y18uxk/', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(function() {
+        successMsg.style.display = 'block';
+        contactForm.reset();
+        btn.textContent = 'Sent ✓';
+      })
+      .catch(function() {
+        errorMsg.style.display = 'block';
+        btn.textContent = 'Send message';
         btn.disabled = false;
       });
     });
