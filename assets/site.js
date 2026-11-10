@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
     successMsg.style.display = 'none';
     errorMsg.style.display = 'none';
     const events = [];
-    if (document.getElementById('ev-ddo').checked)  events.push('Donkey Drop Out – 15/16 Aug 2026');
+    if (document.getElementById('ev-ddo').checked)  events.push('Donkey Drop Out – Aug 2027');
     if (document.getElementById('ev-gu36').checked) events.push('GU36 – 16 May 2027');
     if (document.getElementById('ev-any').checked)  events.push('Any / all future events');
     const roles = [];
