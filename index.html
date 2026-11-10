@@ -1699,6 +1699,9 @@
 </div>
 
 <script>
+// CARTO basemap tiles. The key is domain-restricted to m3events.gg in the CARTO dashboard.
+const CARTO_TILES = 'https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png?key=cb1_4rrh_3_04fa45a35102c24cc7235b9e';
+
 // ── GU36 course map ──
 let gu36MapInitialised = false;
 
@@ -1710,7 +1713,7 @@ function initGU36Map() {
 
   const map = L.map('gu36-map', { zoomControl: true, scrollWheelZoom: false });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer(CARTO_TILES, {
     attribution: '© OpenStreetMap © CARTO',
     maxZoom: 17
   }).addTo(map);
@@ -1736,7 +1739,7 @@ function initDDOMap() {
   if (!mapEl) return;
   ddoMapInitialised = true;
   const map = L.map('ddo-map', { zoomControl: true, scrollWheelZoom: false });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer(CARTO_TILES, {
     attribution: '© OpenStreetMap © CARTO',
     maxZoom: 17
   }).addTo(map);
