@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donkey Drop Out Backyard Ultra, Guernsey | M3 Events</title>
+<meta name="description" content="Donkey Drop Out is Guernsey's only backyard ultra: one loop of about 4 miles every hour until only one runner remains. August 2027.">
+<link rel="canonical" href="https://m3events.gg/donkey-drop-out/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="M3 Events">
+<meta property="og:title" content="Donkey Drop Out Backyard Ultra, Guernsey | M3 Events">
+<meta property="og:description" content="Donkey Drop Out is Guernsey's only backyard ultra: one loop of about 4 miles every hour until only one runner remains. August 2027.">
+<meta property="og:url" content="https://m3events.gg/donkey-drop-out/">
+<meta property="og:image" content="https://m3events.gg/images/ddo-hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Donkey Drop Out Backyard Ultra, Guernsey | M3 Events">
+<meta name="twitter:description" content="Donkey Drop Out is Guernsey's only backyard ultra: one loop of about 4 miles every hour until only one runner remains. August 2027.">
+<meta name="twitter:image" content="https://m3events.gg/images/ddo-hero.jpg">
+<link rel="icon" href="/images/logo-wave-green.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Barlow:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css?v=26ce877b">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="logo-wrap" href="/">
+    <img src="/images/logo-wave-green.svg" alt="M3 Events" style="height:56px;">
+  </a>
+  <div class="nav-links">
+    <div class="nav-item">
+      <a href="/" id="nav-home" class="active">
+        Events <span class="nav-arrow">▼</span>
+      </a>
+      <div class="nav-dropdown">
+        <a href="/donkey-drop-out/">
+          <span style="display:block;font-size:9px;color:#a78bfa;letter-spacing:2px;margin-bottom:2px"> Aug 2027</span>
+          Donkey Drop Out
+        </a>
+        <div class="nav-dropdown-divider"></div>
+        <a href="/gu36/">
+          <span style="display:block;font-size:9px;color:#fbbf24;letter-spacing:2px;margin-bottom:2px">16 May 2027</span>
+          GU36
+        </a>
+      </div>
+    </div>
+    <a href="/getting-here/" id="nav-gh">Getting here</a>
+    <a href="/volunteer/" id="nav-vol">Volunteer</a>
+    <a href="/about/" id="nav-about">About</a>
+  </div>
+  <a class="nav-cta" href="/#signup">Sign up</a>
+</nav>
+
+<div id="page-ddo" class="page active">
+  <div class="ev-hero ev-hero-ddo">
+    <div class="ev-eyebrow" style="color:#a78bfa">M3 Events · Backyard Ultra · Guernsey</div>
+    <h1 class="ev-title">Donkey<br>Drop Out</h1>
+    <p class="ev-subtitle">One loop every hour. Last runner standing wins. Guernsey's only backyard ultra — come and find out how many loops you've got in you.</p>
+    <div class="meta-row">
+      <div class="meta-box"><div class="meta-label">Date</div><div class="meta-value"> Aug 2027</div></div>
+      <div class="meta-box"><div class="meta-label">Format</div><div class="meta-value">Backyard ultra</div></div>
+      <div class="meta-box"><div class="meta-label">Loop distance</div><div class="meta-value">4.1 miles</div></div>
+      <div class="meta-box"><div class="meta-label">Start time</div><div class="meta-value">8.30am</div></div>
+    </div>
+    <a class="btn btn-purple" href="https://race-nation.co.uk/register/m3-events" target="_blank">Enter May 2027</a>
+    <button class="btn btn-ghost" onclick="document.getElementById('event-manual').scrollIntoView({behavior:'smooth'})">Race manual</button>
+  </div>
+  <div class="ev-body">
+    <div class="ev-section">
+      <h2 class="ev-h2">How it works</h2>
+      <p class="ev-p">The backyard ultra format is simple in theory, brutal in practice. Every hour on the hour, runners must complete a loop of approximately 4 miles and return to the start before the next hour begins. The last runner to finish a loop — when everyone else has dropped — wins. There is no set finish distance. There is no second place.</p>
+      <div class="loop-explainer">
+        <div class="loop-row">
+          <div class="loop-box">Hour 1 · 4 miles</div><div class="loop-arr">→</div>
+          <div class="loop-box">Hour 2 · 4 miles</div><div class="loop-arr">→</div>
+          <div class="loop-box">Hour 3 · 4 miles</div><div class="loop-arr">→</div>
+          <div class="loop-box">…</div><div class="loop-arr">→</div>
+          <div class="loop-box loop-win">Last one wins</div>
+        </div>
+        <p class="loop-note">Each loop must be completed within the hour window. Rest time shrinks as your pace slows. The race ends only when one runner remains standing.</p>
+      </div>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Course &amp; GPX</h2>
+      <div id="ddo-map" style="height:380px;border-radius:6px;overflow:hidden;margin:14px 0;border:1px solid rgba(255,255,255,0.08)"></div>
+      <a class="dl-btn" href="/gpx/DDO.gpx" download>⬇ GPX file download</a>
+    </div>
+    <div class="ev-section" id="event-manual">
+      <h2 class="ev-h2">Event manual</h2>
+      <div class="manual-section">
+        <div class="manual-tab-row">
+          <button class="manual-tab active" onclick="showTab('overview', event)">Overview</button>
+          <button class="manual-tab" onclick="showTab('registration', event)">Registration</button>
+          <button class="manual-tab" onclick="showTab('safety', event)">Safety</button>
+          <button class="manual-tab" onclick="showTab('trail', event)">On the trail</button>
+        </div>
+ 
+        <div id="tab-overview" class="manual-panel active">
+          <div class="manual-info-grid">
+            <div class="manual-info-box">
+              <div class="manual-info-label">Base camp</div>
+              <div class="manual-info-val">Sylvans FC</div>
+              <div class="manual-info-sub">Rue de la Corderie, St Peters</div>
+            </div>
+            <div class="manual-info-box">
+              <div class="manual-info-label">Lap distance</div>
+              <div class="manual-info-val">4.167 mi / 6.7km</div>
+              <div class="manual-info-sub">Mixed terrain</div>
+            </div>
+            <div class="manual-info-box">
+              <div class="manual-info-label">Course marking</div>
+              <div class="manual-info-val">Chalk &amp; signs</div>
+              <div class="manual-info-sub">Fully marked throughout</div>
+            </div>
+            <div class="manual-info-box">
+              <div class="manual-info-label">Recce runs</div>
+              <div class="manual-info-val">Dates TBC</div>
+              <div class="manual-info-sub">All are welcome. Meet at Sylvans for two gentle loops to get familiar with the course.</div>
+            </div>
+          </div>
+          <div class="manual-h3">How it works</div>
+          <p class="manual-p">Each lap starts on the hour, every hour. You must be in the circle when the lap starts. We keep going until only one person finishes a lap — at that point they are declared the winner.</p>
+          <div class="manual-warning"><strong>Tip:</strong> When you get back to camp, use your time well. Use the facilities, get some food, sort your feet and clothing, or whatever you need. The rest window shrinks as the race goes on.</div>
+          <div class="manual-h3">Water &amp; waste</div>
+          <p class="manual-p">We have large water bowsers at base camp for refilling bottles — please use these to minimise plastic waste. There is also a refill station at the reservoir on the course.</p>
+        </div>
+ 
+        <div id="tab-registration" class="manual-panel">
+          <div class="manual-h3">Number collection</div>
+          <div class="reg-row">
+            <div class="reg-date">TBC</div>
+            <div class="reg-detail">Sylvans · Registration and number collection</div>
+          </div>
+          <div class="manual-h3">Race Briefing</div>
+          <div class="reg-row">
+            <div class="reg-date">TBC </div>
+            <div class="reg-detail">Everyone needs to attend for event instructions and any late safety updates</div>
+          </div>
+          
+          <div class="manual-h3">Setting up camp</div>
+          <p class="manual-p">You are welcome to set up tents and gazebos between 6pm and 7.30pm the evening before the event or on race morning. Please note:</p>
+          <ul class="manual-ul">
+            <li>Do not drive into the field</li>
+            <li>Do not set up on the marked pitch</li>
+          </ul>
+        </div>
+ 
+        <div id="tab-safety" class="manual-panel">
+          <div class="manual-warning"><strong>Your responsibility:</strong> By participating you accept responsibility for your own safety.</div>
+          <div class="manual-h3">What to carry</div>
+          <p class="manual-p">Be mindful of what you need at the start of each lap to complete it safely. Consider:</p>
+          <ul class="manual-ul">
+            <li>Fuel and hydration for the lap</li>
+            <li>Hat and sun cream in warm conditions</li>
+            <li>Appropriate layering for the temperature</li>
+            <li>Wind and waterproof clothing if rain is forecast</li>
+            <li>Appropriate footwear for the terrain</li>
+            <li>A mobile phone for emergencies</li>
+          </ul>
+          <div class="manual-h3">Roads and junctions</div>
+          <p class="manual-p">The roads are not closed and junctions are not marshalled. Please take particular care at all road crossings.</p>
+          <div class="manual-h3">Injuries on course</div>
+          <p class="manual-p">Please help anyone you find injured or in distress — we will give you a time allowance if you do. If you are injured yourself, be sensible and only continue if it is safe to do so.</p>
+        </div>
+ 
+        <div id="tab-trail" class="manual-panel">
+          <div class="manual-h3">Private land and permissions</div>
+          <p class="manual-p">Many of the trails are privately owned and we use them with kind permission. Please treat them with respect at all times.</p>
+          <div class="manual-warning"><strong>Important:</strong> Any litter on the course will result in disqualification.</div>
+          <div class="manual-h3">Respect for the public</div>
+          <p class="manual-p">Please be respectful to members of the public you encounter on the trail and give them priority when passing. We want to continue to host this event and operate with a leave no trace, make no impact approach. How we behave on course directly affects our ability to run these events in future.</p>
+        </div>
+      </div>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Entry</h2>
+      <p class="ev-p">Entries are open. Places are limited — secure yours early. Please read the race rules and FAQs before entering.</p>
+      <a class="btn btn-purple" href="https://race-nation.co.uk/register/m3-events" target="_blank">Enter May 2027</a>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Getting to Guernsey</h2>
+      <p class="ev-p">Not from the island? We've put together everything you need — flights, ferries and exclusive race hotel rates — on our getting here page.</p>
+      <a class="btn btn-ghost" href="/getting-here/">Getting here →</a>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Volunteer</h2>
+      <p class="ev-p">We need a great crew to make this event happen. You can earn free entry to any M3 Events race. Everyone gets a coffee.</p>
+      <a class="btn btn-ghost" href="/volunteer/">Sign up to volunteer →</a>
+    </div>
+  </div>
+  <a class="back-link" href="/">← Back to all events</a>
+  <footer class="site-footer">
+    <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
+    <div class="footer-links"><a href="/">Events</a><a href="https://www.facebook.com/m3running" target="_blank">Facebook</a><a href="/getting-here/">Getting here</a><a href="/volunteer/">Volunteer</a><a>Contact</a><a href="/terms/">Terms &amp; conditions</a></div>
+  </footer>
+</div>
+
+<script src="/assets/site.js?v=1ed2aa1f"></script>
+</body>
+</html>

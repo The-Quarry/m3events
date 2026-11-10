@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M3 Events — Guernsey Trail Events</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Barlow:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ddo-primary: #7c3aed;
+    --ddo-accent: #a78bfa;
+    --ddo-border: #5b21b6;
+    --ddo-bg: #0f0a1e;
+    --ddo-card: #13102a;
+    --gu36-primary: #d97706;
+    --gu36-accent: #fbbf24;
+    --gu36-border: #b45309;
+    --gu36-bg: #1c1205;
+    --gu36-card: #1e1408;
+    --m3-coral: #e8522a;
+    --m3-dark: #0c1020;
+    --m3-mid: #111627;
+    --m3-green: #3db87a;
+    --m3-blue: #3a8fd4;
+    --white: #f0eee8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--m3-dark);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    background: rgba(12,16,32,0.97);
+    backdrop-filter: blur(12px);
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 80px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 0; cursor: pointer; text-decoration: none; }
+  .logo-wordmark {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    color: #2a2d3a;
+    letter-spacing: -1px;
+    line-height: 1;
+    position: relative;
+    top: -2px;
+  }
+  .logo-svg { margin-left: -4px; }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 4px 0;
+    border-bottom: 2px solid transparent;
+  }
+  .nav-links a:hover, .nav-links a.active { color: #fff; border-color: var(--m3-green); }
+  .nav-cta {
+    background: var(--m3-green);
+    color: #fff;
+    padding: 9px 20px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    font-family: 'Barlow', sans-serif;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: #2ea068; }
+  a.nav-cta { display: inline-block; text-decoration: none; }
+  .card-link { color: inherit; text-decoration: none; }
+
+  /* ── PAGES ── */
+  .page { display: none; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── HOME HERO ── */
+  .home-hero {
+    background: linear-gradient(rgba(17,22,39,0.45), rgba(17,22,39,0.80)),
+                url('/images/cliffs.jpg') center/cover no-repeat;
+    padding: 72px 40px 56px;
+    border-bottom: 4px solid var(--m3-green);
+    position: relative;
+    overflow: hidden;
+  }
+  .home-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 80px,
+      rgba(255,255,255,0.012) 80px,
+      rgba(255,255,255,0.012) 81px
+    );
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: var(--m3-green);
+    margin-bottom: 18px;
+  }
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(44px, 6vw, 72px);
+    line-height: 0.92;
+    color: #fff;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+  .hero-title span { color: var(--m3-green); }
+  .hero-body {
+    font-size: 17px;
+    color: rgba(255,255,255,0.80);
+    font-weight: 300;
+    line-height: 1.75;
+    max-width: 540px;
+    margin-bottom: 32px;
+    font-style: italic;
+  }
+  .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 13px 28px; border-radius: 3px; font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; border: none; transition: all 0.2s; text-decoration: none; }
+  .btn-coral { background: var(--m3-green); color: #fff; }
+  .btn-coral:hover { background: #2ea068; }
+  .btn-ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.28); }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.5); }
+  .btn-purple { background: var(--ddo-primary); color: #fff; }
+  .btn-purple:hover { background: #6d28d9; }
+  .btn-orange { background: var(--gu36-primary); color: #fff; }
+  .btn-orange:hover { background: #b45309; }
+  .btn-green { background: var(--m3-green); color: #fff; }
+  .btn-green:hover { background: #2ea068; }
+  .btn-blue { background: var(--m3-blue); color: #fff; }
+
+  /* ── EVENT CARDS ── */
+  .events-section { padding: 32px 40px 48px; }
+  .sec-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    color: var(--m3-green);
+    margin-bottom: 20px;
+  }
+
+  /* Side-by-side grid on wide screens */
+  .events-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .event-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 220px 1fr auto;
+    border-radius: 8px;
+    margin-bottom: 0;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .event-card:hover { transform: translateY(-3px); }
+
+  .card-ddo {
+    border: 2px solid var(--ddo-border);
+    background: var(--ddo-card);
+    box-shadow: 0 0 40px rgba(124,58,237,0.12);
+  }
+  .card-ddo:hover { box-shadow: 0 8px 48px rgba(124,58,237,0.22); }
+
+  .card-gu36 {
+    border: 2px solid var(--gu36-border);
+    background: var(--gu36-card);
+    box-shadow: 0 0 40px rgba(217,119,6,0.12);
+  }
+  .card-gu36:hover { box-shadow: 0 8px 48px rgba(217,119,6,0.22); }
+
+  .card-photo {
+    position: relative;
+    overflow: hidden;
+    min-height: 220px;
+  }
+  .card-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .photo-fallback {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .photo-badge {
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 5px 11px;
+    border-radius: 2px;
+  }
+  .badge-purple { background: rgba(124,58,237,0.85); color: #ddd6fe; }
+  .badge-orange { background: rgba(180,83,9,0.85); color: #fde68a; }
+
+  .card-body { padding: 24px 24px; }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; gap: 10px; flex-wrap: wrap; }
+  .card-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; color: #fff; letter-spacing: -0.5px; line-height: 1.1; }
+  .date-pill {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 5px 12px;
+    border-radius: 2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .date-purple { background: rgba(124,58,237,0.18); color: #a78bfa; border: 1px solid rgba(124,58,237,0.4); }
+  .date-orange { background: rgba(217,119,6,0.18); color: #fbbf24; border: 1px solid rgba(217,119,6,0.45); }
+  .card-location { font-size: 11px; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; font-weight: 600; }
+  .card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tag { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 2px; }
+  .tag-purple { color: #a78bfa; background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25); }
+  .tag-orange { color: #fbbf24; background: rgba(217,119,6,0.1); border: 1px solid rgba(217,119,6,0.28); }
+  .tag-plain { color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+  .card-desc { font-size: 14px; color: rgba(255,255,255,0.72); line-height: 1.7; font-style: italic; }
+  .card-cta {
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .card-cta .cta-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    min-width: 130px;
+  }
+  .card-cta .cta-status { margin-bottom: 0; }
+  .card-cta-ddo { border-top: 1px solid rgba(124,58,237,0.2); }
+  .card-cta-gu36 { border-top: 1px solid rgba(217,119,6,0.2); }
+  .cta-dist { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; color: #fff; letter-spacing: -1px; text-align: left; line-height: 1; }
+  .cta-dist-sub { font-size: 11px; color: rgba(255,255,255,0.65); text-align: left; margin-top: 4px; text-transform: uppercase; letter-spacing: 1.5px; }
+  .cta-status {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 4px 10px;
+    border-radius: 2px;
+    text-align: center;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+  .status-purple { color: #a78bfa; background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.3); }
+  .status-orange { color: #fbbf24; background: rgba(217,119,6,0.12); border: 1px solid rgba(217,119,6,0.35); }
+  .enter-btn {
+    width: 100%;
+    padding: 11px 0;
+    font-family: 'Barlow', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    }
+  .enter-btn:hover { opacity: 0.85; }
+  .enter-purple { background: var(--ddo-primary); color: #fff; }
+  .enter-orange { background: var(--gu36-primary); color: #fff; }
+
+  /* ── MAILING LIST ── */
+  .mail-strip {
+    background: var(--m3-green);
+    padding: 36px 40px;
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .mail-strip h3 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; color: #fff; letter-spacing: -0.3px; min-width: 200px; flex: 1; padding-top: 4px; }
+  .mail-right { flex: 2; min-width: 260px; }
+  .mail-form { display: flex; max-width: 440px; border-radius: 3px; overflow: hidden; border: 2px solid rgba(255,255,255,0.3); }
+  .mail-form input { flex: 1; background: rgba(255,255,255,0.12); border: none; color: #fff; padding: 12px 16px; font-family: 'Barlow', sans-serif; font-size: 14px; min-width: 0; }
+  .mail-form input::placeholder { color: rgba(255,255,255,0.42); }
+  .mail-form input:focus { outline: none; background: rgba(255,255,255,0.18); }
+  .mail-form button { background: #fff; color: var(--m3-green); border: none; padding: 12px 20px; font-family: 'Barlow', sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; white-space: nowrap; }
+  .mail-form button:hover { background: #f5f5f5; }
+  .consent-txt { font-size: 12px; color: rgba(255,255,255,0.58); margin-top: 10px; font-style: italic; line-height: 1.55; max-width: 440px; }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    background: #080c18;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 24px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .site-footer p { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a { font-size: 12px; color: rgba(255,255,255,0.65); text-decoration: none; cursor: pointer; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--m3-green); }
+
+  /* ── EVENT PAGE HERO ── */
+  .ev-hero {
+    padding: 52px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ev-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(255,255,255,0.015) 60px, rgba(255,255,255,0.015) 61px);
+    pointer-events: none;
+  }
+  .ev-hero-ddo {
+    background: linear-gradient(rgba(15,10,30,0.45), rgba(15,10,30,0.75)),
+                url('/images/ddo-page.jpg') center 15%/cover no-repeat;
+    border-bottom: 4px solid var(--ddo-primary);
+  }
+  .ev-hero-gu36 {
+    background: linear-gradient(rgba(28,18,5,0.45), rgba(28,18,5,0.75)),
+                url('/images/gu-36-page.jpg') center/cover no-repeat;
+    border-bottom: 4px solid var(--gu36-primary);
+  }
+  .ev-hero-vol { background: #051510; border-bottom: 4px solid var(--m3-green); }
+  .ev-hero-gh { background: #05101a; border-bottom: 4px solid var(--m3-blue); }
+
+  .ev-eyebrow { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 14px; }
+  .ev-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(40px,5vw,64px); line-height: 0.94; color: #fff; letter-spacing: -2px; margin-bottom: 16px; }
+  .ev-subtitle { font-size: 17px; font-weight: 400; line-height: 1.75; max-width: 560px; margin-bottom: 24px; font-style: italic; color: rgba(255,255,255,0.82); }
+  .meta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+  .meta-box { background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; padding: 11px 16px; backdrop-filter: blur(4px); }
+  .meta-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
+  .meta-value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 17px; color: #fff; letter-spacing: -0.3px; }
+
+  /* ── EVENT BODY ── */
+  .ev-body { padding: 36px 40px; max-width: 900px; }
+  .ev-section { margin-bottom: 36px; padding-bottom: 36px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .ev-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .ev-h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px; color: #fff; letter-spacing: -0.3px; margin-bottom: 14px; }
+  .ev-p { font-size: 15px; color: rgba(255,255,255,0.72); line-height: 1.8; margin-bottom: 12px; }
+
+  .loop-explainer { background: rgba(124,58,237,0.06); border: 1px solid rgba(124,58,237,0.18); border-radius: 6px; padding: 20px; margin-top: 16px; }
+  .loop-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .loop-box { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.35); border-radius: 3px; padding: 8px 14px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; color: #a78bfa; white-space: nowrap; }
+  .loop-win { background: rgba(232,82,42,0.15); border-color: rgba(232,82,42,0.4); color: #f0855a; }
+  .loop-arr { color: rgba(255,255,255,0.18); font-size: 16px; }
+  .loop-note { font-size: 14px; color: rgba(255,255,255,0.75); font-style: italic; line-height: 1.6; }
+
+  .cp-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); gap: 10px; margin-top: 14px; }
+  .cp-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 12px; }
+  .cp-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.26); margin-bottom: 4px; }
+  .cp-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: #fff; }
+  .cp-detail { font-size: 11px; color: rgba(255,255,255,0.28); margin-top: 2px; }
+
+  .winner-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .winner-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; padding: 14px 18px; flex: 1; min-width: 150px; }
+  .winner-label { font-size: 9px; text-transform: uppercase; letter-spacing: 3px; color: rgba(255,255,255,0.25); margin-bottom: 5px; }
+  .winner-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 17px; color: #fff; margin-bottom: 3px; }
+  .winner-time { font-size: 14px; font-weight: 600; color: var(--gu36-primary); }
+
+  .map-ph { background: #0a1428; border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; height: 220px; display: flex; align-items: center; justify-content: center; margin: 14px 0; }
+  .map-ph span { font-size: 11px; color: rgba(255,255,255,0.18); text-transform: uppercase; letter-spacing: 3px; }
+
+  .dl-btn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.65); padding: 10px 16px; border-radius: 3px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; margin-right: 8px; margin-top: 10px; font-family: 'Barlow', sans-serif; transition: background 0.2s; }
+  .dl-btn:hover { background: rgba(255,255,255,0.09); color: #fff; }
+
+  /* ── VOLUNTEERS ── */
+  .perks-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 12px; margin: 20px 0; }
+  .perk { background: rgba(61,184,122,0.07); border: 1px solid rgba(61,184,122,0.18); border-radius: 6px; padding: 18px; }
+  .perk-icon { font-size: 22px; margin-bottom: 10px; display: block; }
+  .perk-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--m3-green); margin-bottom: 6px; }
+  .perk-body { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.6; }
+
+  .role-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 5px; padding: 14px 18px; margin-bottom: 10px; }
+  .role-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: #fff; margin-bottom: 6px; }
+  .role-body { font-size: 13px; color: rgba(255,255,255,0.38); line-height: 1.65; }
+
+  /* ── VOLUNTEER FORM ── */
+  .vol-form { background: var(--m3-mid); padding: 36px 40px; border-top: 1px solid rgba(255,255,255,0.07); }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 14px; margin-bottom: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.38); font-weight: 600; }
+  .field input, .field select, .field textarea {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #fff;
+    padding: 10px 13px;
+    border-radius: 3px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--m3-green); }
+  .field select option { background: #1a2040; color: #fff; }
+  .field textarea { min-height: 80px; resize: vertical; }
+  .cb-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .cb-row input[type=checkbox] { width: 16px; height: 16px; margin-top: 3px; flex-shrink: 0; accent-color: var(--m3-green); cursor: pointer; }
+  .cb-label { font-size: 13px; color: rgba(255,255,255,0.42); line-height: 1.55; cursor: pointer; }
+
+  /* ── GETTING HERE ── */
+  .travel-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 14px; margin-top: 16px; }
+  .travel-card { background: rgba(58,143,212,0.07); border: 1px solid rgba(58,143,212,0.2); border-radius: 6px; padding: 18px; }
+  .travel-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: #7ab8f0; margin-bottom: 8px; }
+  .travel-body { font-size: 13px; color: rgba(255,255,255,0.42); line-height: 1.65; }
+  .travel-link { display: inline-block; margin-top: 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--m3-blue); cursor: pointer; text-decoration: none; }
+  .travel-link:hover { color: #7ab8f0; }
+
+  .hotel-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 16px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  .hotel-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: #fff; margin-bottom: 5px; }
+  .hotel-detail { font-size: 13px; color: rgba(255,255,255,0.38); line-height: 1.6; }
+  .hotel-badge { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; background: rgba(217,119,6,0.15); color: #fbbf24; border: 1px solid rgba(217,119,6,0.32); padding: 5px 12px; border-radius: 2px; white-space: nowrap; flex-shrink: 0; }
+  .hotel-coming { background: rgba(58,143,212,0.08); border: 1px solid rgba(58,143,212,0.18); border-radius: 6px; padding: 16px 20px; margin-top: 6px; font-size: 13px; color: rgba(255,255,255,0.38); line-height: 1.65; font-style: italic; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.35); cursor: pointer; margin-top: 4px; padding: 0 40px 28px; text-decoration: none; transition: color 0.2s; }
+  .back-link:hover { color: var(--m3-coral); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .events-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 700px) {
+    .card-photo { min-height: 180px; }
+    .nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .home-hero, .events-section, .ev-body, .vol-form, .mail-strip, .site-footer { padding-left: 20px; padding-right: 20px; }
+    .ev-hero { padding: 40px 20px 32px; }
+  }
+  @media (hover: none) {
+  .nav-item:hover .nav-dropdown {
+    display: none;
+  }
+}
+
+  /* ── SPONSORS ── */
+  .sponsors-strip {
+    background: #0a0e1c;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 36px 40px;
+  }
+  .sponsors-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .sponsors-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+  }
+  .sponsor-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 160px;
+    height: 72px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .sponsor-slot:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.18);
+  }
+  .sponsor-slot img {
+    max-width: 120px;
+    max-height: 48px;
+    object-fit: contain;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+  }
+  .sponsor-slot:hover img { opacity: 1; }
+  .sponsor-placeholder {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.2);
+    text-align: center;
+    line-height: 1.4;
+  }
+  .sponsor-slot.become-sponsor {
+    border-style: dashed;
+    border-color: rgba(61,184,122,0.25);
+    background: rgba(61,184,122,0.04);
+  }
+  .sponsor-slot.become-sponsor:hover {
+    border-color: rgba(61,184,122,0.5);
+    background: rgba(61,184,122,0.08);
+  }
+  .sponsor-slot.become-sponsor span {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--m3-green);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* ── EVENT MANUAL ── */
+.manual-section {
+  background: rgba(124,58,237,0.04);
+  border: 1px solid rgba(124,58,237,0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.manual-tab-row {
+  display: flex;
+  border-bottom: 1px solid rgba(124,58,237,0.15);
+  flex-wrap: wrap;
+}
+.manual-tab {
+  padding: 11px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  font-family: 'Barlow', sans-serif;
+}
+.manual-tab:hover { color: rgba(255,255,255,0.7); }
+.manual-tab.active { color: #a78bfa; border-bottom-color: #7c3aed; }
+.manual-panel { display: none; padding: 24px; }
+.manual-panel.active { display: block; }
+.manual-h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+  margin: 20px 0 8px;
+}
+.manual-h3:first-child { margin-top: 0; }
+.manual-p {
+  font-size: 14px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.75;
+  margin-bottom: 10px;
+}
+.manual-ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 10px;
+}
+.manual-ul li {
+  font-size: 14px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.7;
+  padding: 4px 0 4px 18px;
+  position: relative;
+}
+.manual-ul li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: #7c3aed;
+  font-weight: 600;
+}
+.manual-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+.manual-info-box {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 5px;
+  padding: 12px 14px;
+}
+.manual-info-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.28);
+  margin-bottom: 4px;
+}
+.manual-info-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+}
+.manual-info-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  margin-top: 2px;
+}
+.manual-warning {
+  background: rgba(232,82,42,0.08);
+  border: 1px solid rgba(232,82,42,0.82);
+  border-radius: 5px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.65;
+}
+.manual-warning strong { color: #f0855a; font-weight: 600; }
+.reg-row {
+  background: rgba(124,58,237,0.08);
+  border: 1px solid rgba(124,58,237,0.2);
+  border-radius: 5px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.reg-date {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #a78bfa;
+  margin-bottom: 4px;
+}
+.reg-detail {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.6;
+}
+/* ── GU36 MANUAL OVERRIDES ── */
+.manual-section-gu36 {
+  background: rgba(217,119,6,0.04);
+  border: 1px solid rgba(217,119,6,0.18);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.manual-section-gu36 .manual-tab-row {
+  border-bottom: 1px solid rgba(217,119,6,0.15);
+}
+.manual-section-gu36 .manual-tab.active {
+  color: #fbbf24;
+  border-bottom-color: #d97706;
+}
+.manual-section-gu36 .manual-ul li::before {
+  color: #d97706;
+}
+.manual-section-gu36 .reg-row {
+  background: rgba(217,119,6,0.08);
+  border-color: rgba(217,119,6,0.2);
+}
+.manual-section-gu36 .reg-date {
+  color: #fbbf24;
+}
+.cp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.cp-table th {
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.28);
+  font-weight: 600;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.cp-table td {
+  padding: 10px 12px;
+  color: rgba(255,255,255,0.75);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  vertical-align: top;
+  line-height: 1.55;
+}
+.cp-table tr:last-child td { border-bottom: none; }
+.cp-table td:first-child {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+  white-space: nowrap;
+}
+.cp-table .cutoff {
+  font-size: 11px;
+  color: rgba(232,82,42,0.8);
+  margin-top: 3px;
+}
+.coming-soon-banner {
+  background: rgba(61,184,122,0.07);
+  border: 1px solid rgba(61,184,122,0.2);
+  border-radius: 5px;
+  padding: 14px 16px;
+  margin-bottom: 28px;
+}
+.coming-soon-banner strong {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #3db87a;
+  display: block;
+  margin-bottom: 4px;
+}
+.coming-soon-banner p {
+  font-size: 13px;
+  color: rgba(255,255,255,0.42);
+  line-height: 1.6;
+}
+/* ── NAV DROPDOWN ── */
+.nav-item {
+  position: relative;
+}
+.nav-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 1px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(12,16,32,0.98);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-top: 2px solid var(--m3-green);
+  border-radius: 0 0 6px 6px;
+  min-width: 180px;
+  padding: 6px 0;
+  z-index: 200;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+}
+.nav-item.open .nav-dropdown {
+  display: block;
+}
+.nav-item:hover .nav-dropdown {
+  display: block;
+}
+.nav-dropdown a {
+  display: block;
+  padding: 10px 18px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+  cursor: pointer;
+  border-bottom: none;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.nav-dropdown a:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.05);
+}
+.nav-dropdown-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 4px 0;
+}
+.nav-arrow {
+  font-size: 9px;
+  margin-left: 4px;
+  opacity: 0.5;
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.nav-item:hover .nav-arrow {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+/* ── T&Cs ── */
+.tc-item {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.tc-item:last-child { border-bottom: none; }
+.tc-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--m3-green);
+  min-width: 24px;
+  padding-top: 1px;
+}
+.tc-text {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.75;
+  margin: 0;
+}
+/* ── CHECKBOX GROUPS ── */
+.check-group {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 3px;
+  padding: 6px 4px;
+}
+.check-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 3px;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.check-option:hover {
+  background: rgba(255,255,255,0.05);
+}
+.check-option input[type=checkbox] {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  accent-color: var(--m3-green);
+  cursor: pointer;
+  margin: 0;
+  border: none;
+  background: none;
+  padding: 0;
+}
+.check-option label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.check-option input[type=checkbox]:checked + label {
+  color: #fff;
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="logo-wrap" href="/">
+    <img src="/images/logo-wave-green.svg" alt="M3 Events" style="height:56px;">
+  </a>
+  <div class="nav-links">
+    <div class="nav-item">
+      <a href="/" id="nav-home">
+        Events <span class="nav-arrow">▼</span>
+      </a>
+      <div class="nav-dropdown">
+        <a href="/donkey-drop-out/">
+          <span style="display:block;font-size:9px;color:#a78bfa;letter-spacing:2px;margin-bottom:2px"> Aug 2027</span>
+          Donkey Drop Out
+        </a>
+        <div class="nav-dropdown-divider"></div>
+        <a href="/gu36/">
+          <span style="display:block;font-size:9px;color:#fbbf24;letter-spacing:2px;margin-bottom:2px">16 May 2027</span>
+          GU36
+        </a>
+      </div>
+    </div>
+    <a href="/getting-here/" id="nav-gh">Getting here</a>
+    <a href="/volunteer/" id="nav-vol">Volunteer</a>
+    <a href="/about/" id="nav-about">About</a>
+  </div>
+  <a class="nav-cta" href="/#signup">Sign up</a>
+</nav>
+
+<!-- ═══════════════════════════════════ HOME ═══════════════════════════════════ -->
+<div id="page-home" class="page">
+  <section class="home-hero">
+    <div class="hero-eyebrow">Run Guernsey</div>
+    <h1 class="hero-title">Where the<br>trail meets<br>the <span>sea</span></h1>
+    <p class="hero-body">Unique, challenging running events across Guernsey's coastline, cliffs and countryside. Small island. Serious trails. Founded by runners for runners.</p>
+    <div class="hero-btns">
+      <button class="btn btn-coral" onclick="document.getElementById('events-list').scrollIntoView({behavior:'smooth'})">View events</button>
+      <a class="btn btn-ghost" href="/volunteer/">Volunteer with us</a>
+    </div>
+  </section>
+
+  <section class="events-section" id="events-list">
+    <div class="sec-label">2026 / 2027 event calendar</div>
+    <div class="events-grid">
+
+    <!-- DDO card -->
+    <div class="event-card card-ddo" data-href="/donkey-drop-out/">
+      <div class="card-photo">
+        <img src="/images/ddo-hero.jpg" alt="Donkey Drop Out"
+           style="width:100%;height:100%;object-fit:cover;display:block;min-height:220px;object-position:center 40%;">
+        <div class="photo-badge badge-purple">Backyard ultra</div>
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="card-name"><a class="card-link" href="/donkey-drop-out/">Donkey Drop Out</a></div>
+          <div class="date-pill date-purple"> Aug 2027</div>
+        </div>
+        <div class="card-location">Guernsey · Sylvans</div>
+        <div class="card-tags">
+          <span class="tag tag-purple">Backyard ultra</span>
+          <span class="tag tag-purple">~4 miles per loop</span>
+          <span class="tag tag-plain">Every hour on the hour</span>
+          <span class="tag tag-plain">Last one standing wins</span>
+        </div>
+        <p class="card-desc">One loop every hour until only one runner remains. Guernsey's only backyard ultra — deceptively brutal, utterly addictive. Don't be the first donkey to drop.</p>
+      </div>
+      <div class="card-cta card-cta-ddo">
+        <div>
+          <div class="cta-dist" style="font-size:20px">∞</div>
+          <div class="cta-dist-sub">Last standing</div>
+        </div>
+        <div class="cta-right">
+          <div class="cta-status status-purple">Entries coming May 2027</div>
+          <a class="enter-btn enter-purple" href="https://race-nation.co.uk/register/m3-events" target="_blank">Entry opens May 2027</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- GU36 card -->
+    <div class="event-card card-gu36" data-href="/gu36/">
+      <div class="card-photo">
+        <img src="/images/gu36-hero.jpg" alt="GU36"
+           style="width:100%;height:100%;object-fit:cover;display:block;min-height:220px;object-position:center 60%;">
+        <div class="photo-badge badge-orange">Round island ultra</div>
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="card-name"><a class="card-link" href="/gu36/">GU36</a></div>
+          <div class="date-pill date-orange">16 May 2027</div>
+        </div>
+        <div class="card-location">Island-wide · Full circumnavigation</div>
+        <div class="card-tags">
+          <span class="tag tag-orange">36 miles / 58km</span>
+          <span class="tag tag-orange">Ultra distance</span>
+          <span class="tag tag-plain">Fully marked</span>
+          <span class="tag tag-plain">Mixed terrain</span>
+          <span class="tag tag-plain">St Peter Port start/finish</span>
+        </div>
+        <p class="card-desc">A 36-mile fully marked race around the entire island — south coast cliffs, sweeping west coast bays, north coast and back. The definitive Guernsey ultra challenge.</p>
+      </div>
+      <div class="card-cta card-cta-gu36">
+        <div>
+          <div class="cta-dist">36<span style="font-size:13px;color:rgba(255,255,255,0.3);font-weight:300"> mi</span></div>
+          <div class="cta-dist-sub">Full island</div>
+        </div>
+        <div class="cta-right">
+          <div class="cta-status status-orange">Entries open Monday 16 November</div>
+          <a class="enter-btn enter-orange" href="https://race-nation.co.uk/register/m3-events/gu36" target="_blank" rel="noopener">Enter</a>
+        </div>
+      </div>
+    </div><!-- end card-gu36 -->
+    </div><!-- end events-grid -->
+  </section>
+
+  <div class="sponsors-strip">
+    <div class="sponsors-label">Our sponsors &amp; partners</div>
+    <div class="sponsors-grid">
+      <!-- Replace each sponsor-slot with: <a class="sponsor-slot" href="https://sponsor-url.com" target="_blank"><img src="path/to/logo.png" alt="Sponsor Name"></a> -->
+      <a class="sponsor-slot" href="https://www.thequarry.media" target="_blank">
+        <img src="/sponsors/quarry_m3.png" alt="The Quarry">
+      </a>
+      <a class="sponsor-slot" href="https://spikecreative.studio/" target="_blank"><img src="/sponsors/spike_m3.png" alt="Spike Creative Studio"></a>
+      <a class="sponsor-slot" href="https://guernseyathletics.org.gg/" target="_blank"><img src="/sponsors/athletics_m3.png" alt="Guernsey Athletics"></a>
+      <a class="sponsor-slot" href="https://water.gg/" target="_blank"><img src="/sponsors/water_m3.png" alt="Guernsey Water"></a>
+      <a class="sponsor-slot" href="http://www.sylvanssc.org/" target="_blank"><img src="/sponsors/sylvans_m3.png" alt="Sylvans"></a>
+      <a class="sponsor-slot become-sponsor" href="mailto:hello@m3events.gg">
+        <span>Become a<br>sponsor</span>
+      </a>
+    </div>
+  </div>
+
+
+  <div class="mail-strip" id="signup">
+    <h3>Be first to the start line.</h3>
+    <div class="mail-right">
+      <form id="signup-form">
+        <div class="mail-form">
+          <input type="email" id="signup-email" placeholder="your@email.com" required/>
+          <button type="submit" id="signup-btn">Sign up</button>
+        </div>
+        <p class="consent-txt">By signing up you agree to receive email updates from M3 Events. We'll never share your details with third parties. You can unsubscribe at any time.</p>
+        <p id="signup-success" style="display:none;margin-top:10px;color:#fff;font-weight:600;font-style:italic;font-size:13px">✓ You're on the list — we'll be in touch!</p>
+        <p id="signup-error" style="display:none;margin-top:10px;color:#fff;font-style:italic;font-size:13px;opacity:0.8">Something went wrong — please try again.</p>
+      </form>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
+    <div class="footer-links">
+      <a href="https://www.facebook.com/m3running" target="_blank">Facebook</a>
+      <a href="/getting-here/">Getting here</a>
+      <a href="/volunteer/">Volunteer</a>
+      <a>Contact</a><a href="/terms/">Terms &amp; conditions</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════ DDO ═══════════════════════════════════ -->
+<div id="page-ddo" class="page">
+  <div class="ev-hero ev-hero-ddo">
+    <div class="ev-eyebrow" style="color:#a78bfa">M3 Events · Backyard Ultra · Guernsey</div>
+    <h1 class="ev-title">Donkey<br>Drop Out</h1>
+    <p class="ev-subtitle">One loop every hour. Last runner standing wins. Guernsey's only backyard ultra — come and find out how many loops you've got in you.</p>
+    <div class="meta-row">
+      <div class="meta-box"><div class="meta-label">Date</div><div class="meta-value"> Aug 2027</div></div>
+      <div class="meta-box"><div class="meta-label">Format</div><div class="meta-value">Backyard ultra</div></div>
+      <div class="meta-box"><div class="meta-label">Loop distance</div><div class="meta-value">4.1 miles</div></div>
+      <div class="meta-box"><div class="meta-label">Start time</div><div class="meta-value">8.30am</div></div>
+    </div>
+    <a class="btn btn-purple" href="https://race-nation.co.uk/register/m3-events" target="_blank">Enter May 2027</a>
+    <button class="btn btn-ghost" onclick="document.getElementById('event-manual').scrollIntoView({behavior:'smooth'})">Race manual</button>
+  </div>
+  <div class="ev-body">
+    <div class="ev-section">
+      <h2 class="ev-h2">How it works</h2>
+      <p class="ev-p">The backyard ultra format is simple in theory, brutal in practice. Every hour on the hour, runners must complete a loop of approximately 4 miles and return to the start before the next hour begins. The last runner to finish a loop — when everyone else has dropped — wins. There is no set finish distance. There is no second place.</p>
+      <div class="loop-explainer">
+        <div class="loop-row">
+          <div class="loop-box">Hour 1 · 4 miles</div><div class="loop-arr">→</div>
+          <div class="loop-box">Hour 2 · 4 miles</div><div class="loop-arr">→</div>
+          <div class="loop-box">Hour 3 · 4 miles</div><div class="loop-arr">→</div>
+          <div class="loop-box">…</div><div class="loop-arr">→</div>
+          <div class="loop-box loop-win">Last one wins</div>
+        </div>
+        <p class="loop-note">Each loop must be completed within the hour window. Rest time shrinks as your pace slows. The race ends only when one runner remains standing.</p>
+      </div>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Course &amp; GPX</h2>
+      <div id="ddo-map" style="height:380px;border-radius:6px;overflow:hidden;margin:14px 0;border:1px solid rgba(255,255,255,0.08)"></div>
+      <a class="dl-btn" href="/gpx/DDO.gpx" download>⬇ GPX file download</a>
+    </div>
+    <div class="ev-section" id="event-manual">
+      <h2 class="ev-h2">Event manual</h2>
+      <div class="manual-section">
+        <div class="manual-tab-row">
+          <button class="manual-tab active" onclick="showTab('overview', event)">Overview</button>
+          <button class="manual-tab" onclick="showTab('registration', event)">Registration</button>
+          <button class="manual-tab" onclick="showTab('safety', event)">Safety</button>
+          <button class="manual-tab" onclick="showTab('trail', event)">On the trail</button>
+        </div>
+ 
+        <div id="tab-overview" class="manual-panel active">
+          <div class="manual-info-grid">
+            <div class="manual-info-box">
+              <div class="manual-info-label">Base camp</div>
+              <div class="manual-info-val">Sylvans FC</div>
+              <div class="manual-info-sub">Rue de la Corderie, St Peters</div>
+            </div>
+            <div class="manual-info-box">
+              <div class="manual-info-label">Lap distance</div>
+              <div class="manual-info-val">4.167 mi / 6.7km</div>
+              <div class="manual-info-sub">Mixed terrain</div>
+            </div>
+            <div class="manual-info-box">
+              <div class="manual-info-label">Course marking</div>
+              <div class="manual-info-val">Chalk &amp; signs</div>
+              <div class="manual-info-sub">Fully marked throughout</div>
+            </div>
+            <div class="manual-info-box">
+              <div class="manual-info-label">Recce runs</div>
+              <div class="manual-info-val">Dates TBC</div>
+              <div class="manual-info-sub">All are welcome. Meet at Sylvans for two gentle loops to get familiar with the course.</div>
+            </div>
+          </div>
+          <div class="manual-h3">How it works</div>
+          <p class="manual-p">Each lap starts on the hour, every hour. You must be in the circle when the lap starts. We keep going until only one person finishes a lap — at that point they are declared the winner.</p>
+          <div class="manual-warning"><strong>Tip:</strong> When you get back to camp, use your time well. Use the facilities, get some food, sort your feet and clothing, or whatever you need. The rest window shrinks as the race goes on.</div>
+          <div class="manual-h3">Water &amp; waste</div>
+          <p class="manual-p">We have large water bowsers at base camp for refilling bottles — please use these to minimise plastic waste. There is also a refill station at the reservoir on the course.</p>
+        </div>
+ 
+        <div id="tab-registration" class="manual-panel">
+          <div class="manual-h3">Number collection</div>
+          <div class="reg-row">
+            <div class="reg-date">TBC</div>
+            <div class="reg-detail">Sylvans · Registration and number collection</div>
+          </div>
+          <div class="manual-h3">Race Briefing</div>
+          <div class="reg-row">
+            <div class="reg-date">TBC </div>
+            <div class="reg-detail">Everyone needs to attend for event instructions and any late safety updates</div>
+          </div>
+          
+          <div class="manual-h3">Setting up camp</div>
+          <p class="manual-p">You are welcome to set up tents and gazebos between 6pm and 7.30pm the evening before the event or on race morning. Please note:</p>
+          <ul class="manual-ul">
+            <li>Do not drive into the field</li>
+            <li>Do not set up on the marked pitch</li>
+          </ul>
+        </div>
+ 
+        <div id="tab-safety" class="manual-panel">
+          <div class="manual-warning"><strong>Your responsibility:</strong> By participating you accept responsibility for your own safety.</div>
+          <div class="manual-h3">What to carry</div>
+          <p class="manual-p">Be mindful of what you need at the start of each lap to complete it safely. Consider:</p>
+          <ul class="manual-ul">
+            <li>Fuel and hydration for the lap</li>
+            <li>Hat and sun cream in warm conditions</li>
+            <li>Appropriate layering for the temperature</li>
+            <li>Wind and waterproof clothing if rain is forecast</li>
+            <li>Appropriate footwear for the terrain</li>
+            <li>A mobile phone for emergencies</li>
+          </ul>
+          <div class="manual-h3">Roads and junctions</div>
+          <p class="manual-p">The roads are not closed and junctions are not marshalled. Please take particular care at all road crossings.</p>
+          <div class="manual-h3">Injuries on course</div>
+          <p class="manual-p">Please help anyone you find injured or in distress — we will give you a time allowance if you do. If you are injured yourself, be sensible and only continue if it is safe to do so.</p>
+        </div>
+ 
+        <div id="tab-trail" class="manual-panel">
+          <div class="manual-h3">Private land and permissions</div>
+          <p class="manual-p">Many of the trails are privately owned and we use them with kind permission. Please treat them with respect at all times.</p>
+          <div class="manual-warning"><strong>Important:</strong> Any litter on the course will result in disqualification.</div>
+          <div class="manual-h3">Respect for the public</div>
+          <p class="manual-p">Please be respectful to members of the public you encounter on the trail and give them priority when passing. We want to continue to host this event and operate with a leave no trace, make no impact approach. How we behave on course directly affects our ability to run these events in future.</p>
+        </div>
+      </div>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Entry</h2>
+      <p class="ev-p">Entries are open. Places are limited — secure yours early. Please read the race rules and FAQs before entering.</p>
+      <a class="btn btn-purple" href="https://race-nation.co.uk/register/m3-events" target="_blank">Enter May 2027</a>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Getting to Guernsey</h2>
+      <p class="ev-p">Not from the island? We've put together everything you need — flights, ferries and exclusive race hotel rates — on our getting here page.</p>
+      <a class="btn btn-ghost" href="/getting-here/">Getting here →</a>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Volunteer</h2>
+      <p class="ev-p">We need a great crew to make this event happen. You can earn free entry to any M3 Events race. Everyone gets a coffee.</p>
+      <a class="btn btn-ghost" href="/volunteer/">Sign up to volunteer →</a>
+    </div>
+  </div>
+  <a class="back-link" href="/">← Back to all events</a>
+  <footer class="site-footer">
+    <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
+    <div class="footer-links"><a href="/">Events</a><a href="https://www.facebook.com/m3running" target="_blank">Facebook</a><a href="/getting-here/">Getting here</a><a href="/volunteer/">Volunteer</a><a>Contact</a><a href="/terms/">Terms &amp; conditions</a></div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════ GU36 ═══════════════════════════════════ -->
+<div id="page-gu36" class="page">
+  <div class="ev-hero ev-hero-gu36">
+    <div class="ev-eyebrow" style="color:#fbbf24">M3 Events · Ultra · Round Island · 16 May 2027</div>
+    <h1 class="ev-title">GU36</h1>
+    <p class="ev-subtitle">36 miles around the entire island of Guernsey. Fully marked, mixed terrain, starting and finishing in St Peter Port. The definitive Guernsey ultra.</p>
+    <div class="meta-row">
+      <div class="meta-box"><div class="meta-label">Date</div><div class="meta-value">16 May 2027</div></div>
+      <div class="meta-box"><div class="meta-label">Distance</div><div class="meta-value">36 mi / 58km</div></div>
+      <div class="meta-box"><div class="meta-label">Start / Finish</div><div class="meta-value">St Peter Port</div></div>
+      <div class="meta-box"><div class="meta-label">Terrain</div><div class="meta-value">Mixed / marked</div></div>
+    </div>
+    <a class="btn btn-orange" href="https://race-nation.co.uk/register/m3-events/gu36" target="_blank" rel="noopener">Enter</a>
+    <button class="btn btn-ghost" onclick="document.getElementById('gu36-manual').scrollIntoView({behavior:'smooth'})">Race manual</button>
+  </div>
+  <div class="ev-body">
+
+    <div class="ev-section">
+      <h2 class="ev-h2">About the race</h2>
+      <p class="ev-p">The GU36 is a 36-mile fully marked mixed terrain race around the island of Guernsey. The circular route starts in the picturesque town of St Peter Port before leading onto 16 miles of beautifully rugged south coast cliffs. From here it is fairly flat along the west coast, with sweeping views across the bays and beaches of Vazon and Cobo.</p>
+      <p class="ev-p">At around mile 25, a fully stocked checkpoint gives you a chance to refuel before continuing around the north coast and east coast back to St Peter Port and the finish. An ideal race for those wanting to step up to ultra distance — with checkpoints further apart than a typical marathon, it will prepare you well for the self-sufficient demands of ultra running.</p>
+    </div>
+
+    <div class="ev-section" id="gu36-manual">
+      <h2 class="ev-h2">Race manual</h2>
+
+      <div class="manual-section manual-section-gu36">
+        <div class="manual-tab-row">
+          <button class="manual-tab active" onclick="showTab('gu36-course', event)">Course</button>
+          <button class="manual-tab" onclick="showTab('gu36-checkpoints', event)">Checkpoints</button>
+          <button class="manual-tab" onclick="showTab('gu36-kit', event)">Kit list</button>
+          <button class="manual-tab" onclick="showTab('gu36-awards', event)">Awards</button>
+        </div>
+
+        <div id="tab-gu36-course" class="manual-panel active">
+          <div class="manual-info-grid">
+            <div class="manual-info-box">
+              <div class="manual-info-label">Distance</div>
+              <div class="manual-info-val">36 miles / 58km</div>
+              <div class="manual-info-sub">Approximate</div>
+            </div>
+            <div class="manual-info-box">
+              <div class="manual-info-label">Ascent / Descent</div>
+              <div class="manual-info-val">~1,000m</div>
+              <div class="manual-info-sub">Approx both ways</div>
+            </div>
+            <div class="manual-info-box">
+              <div class="manual-info-label">Start</div>
+              <div class="manual-info-val">Near Liberation Monument</div>
+              <div class="manual-info-sub">St Peter Port</div>
+            </div>
+            <div class="manual-info-box">
+              <div class="manual-info-label">Finish</div>
+              <div class="manual-info-val">North Beach Car Park</div>
+              <div class="manual-info-sub">Nr. pétanque pitch, St Peter Port</div>
+            </div>
+          </div>
+          <div class="manual-h3">Navigation</div>
+          <p class="manual-p">Easy navigation — the course is fully marked and you just need to keep the sea on your left!</p>
+          <div class="manual-h3">The route</div>
+          <p class="manual-p">The race starts near the Liberation Monument in St Peter Port before leading onto 16 miles of beautifully rugged south coast cliffs. There will be a water stop at 8 miles, with the first full checkpoint at Portlet at the end of the cliff section — where you can access your drop bag, water, food and drinks.</p>
+          <p class="manual-p">From Portlet it's fairly flat along the west coast, where you'll enjoy sweeping views across the bays and beaches. Take some money — you may want to treat yourself to an ice cream or cold drink from one of the kiosks along the way.</p>
+          <p class="manual-p">At around mile 25, a fully stocked checkpoint at Rousse replenishes you before the final push around the north coast and east coast back to St Peter Port and the finish.</p>
+          <div class="manual-warning"><strong>Footwear tip:</strong> Trail shoes are recommended for the cliff section. You can leave a change of shoes in your drop bag at the Portlet checkpoint (mile 16) for the flatter west and north coast sections, which include some unavoidable road stretches.</div>
+          <div class="manual-h3">Who is it for?</div>
+          <p class="manual-p">This is an ideal race for those wanting to step up to ultra distance. With checkpoints further apart than a typical marathon, it will prepare you well for the more self-sufficient demands of ultra running. The safety and enjoyment of our runners is important to us — we will do our best to give you first class race support all the way to the finish.</p>
+        </div>
+
+        <div id="tab-gu36-checkpoints" class="manual-panel">
+          <table class="cp-table">
+            <thead>
+              <tr>
+                <th>Checkpoint</th>
+                <th>Location</th>
+                <th>Facilities</th>
+                <th>Cut-off</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Start<br><span style="font-family:Barlow,sans-serif;font-weight:300;font-size:12px;color:rgba(255,255,255,0.35)">Mile 0</span></td>
+                <td>Near Liberation Monument<br>St Peter Port</td>
+                <td>—</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>CP1<br><span style="font-family:Barlow,sans-serif;font-weight:300;font-size:12px;color:rgba(255,255,255,0.35)">Mile 8</span></td>
+                <td>Petit Bot</td>
+                <td>Water stop only</td>
+                <td>
+                  2.5 hrs / 09:30
+                  <div class="cutoff">Min pace 18:45 m/mi</div>
+                </td>
+              </tr>
+              <tr>
+                <td>CP2<br><span style="font-family:Barlow,sans-serif;font-weight:300;font-size:12px;color:rgba(255,255,255,0.35)">Mile 16</span></td>
+                <td>Portlet</td>
+                <td>Drop bags · Water · Food &amp; drinks · Toilets</td>
+                <td>
+                  5 hrs / 12:00
+                  <div class="cutoff">Min pace 18:45 m/mi</div>
+                </td>
+              </tr>
+              <tr>
+                <td>CP3<br><span style="font-family:Barlow,sans-serif;font-weight:300;font-size:12px;color:rgba(255,255,255,0.35)">Mile 25</span></td>
+                <td>Rousse</td>
+                <td>Water · Food &amp; drinks · Toilets</td>
+                <td>
+                  7.5 hrs / 14:30
+                  <div class="cutoff">Min pace 15:00 m/mi</div>
+                </td>
+              </tr>
+              <tr>
+                <td>Finish<br><span style="font-family:Barlow,sans-serif;font-weight:300;font-size:12px;color:rgba(255,255,255,0.35)">Mile 36</span></td>
+                <td>North Beach Car Park<br>St Peter Port</td>
+                <td>—</td>
+                <td>
+                  10 hrs / 17:00
+                  <div class="cutoff">Min pace 15:00 m/mi · Overall avg 16:50 m/mi</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="manual-p" style="margin-top:14px;font-size:12px">All distances and paces are approximate. Cut-off times are based on a 07:00 race start.</p>
+        </div>
+
+        <div id="tab-gu36-kit" class="manual-panel">
+          <div class="manual-h3">Mandatory kit</div>
+          <ul class="manual-ul">
+            <li>Running attire suitable for the conditions on the day</li>
+            <li>Bottles or hydration pack capable of carrying sufficient water for at least 10 miles of running</li>
+            <li>Mobile phone with the race support number saved</li>
+          </ul>
+          <div class="manual-h3">Recommended kit</div>
+          <ul class="manual-ul">
+            <li>A small drop bag — available at the mile 16 Portlet checkpoint and returned to the finish</li>
+            <li>Trail shoes, particularly for the cliff section (miles 0–16)</li>
+            <li>Small basic first aid kit</li>
+            <li>Cash for the kiosks on the west coast</li>
+            <li>Sun cream and hat in warm conditions</li>
+          </ul>
+        </div>
+
+        <div id="tab-gu36-awards" class="manual-panel">
+          <div class="manual-h3">Podium awards</div>
+          <ul class="manual-ul">
+            <li>1st, 2nd &amp; 3rd Female</li>
+            <li>1st, 2nd &amp; 3rd Male</li>
+          </ul>
+          <div class="manual-h3">Course records</div>
+          <div class="manual-info-grid">
+            <div class="manual-info-box">
+              <div class="manual-info-label">Male record</div>
+              <div class="manual-info-val">4:06:10</div>
+              <div class="manual-info-sub">Tiaan Erwee · 2023</div>
+            </div>
+            <div class="manual-info-box">
+              <div class="manual-info-label">Female record</div>
+              <div class="manual-info-val">5:33:58</div>
+              <div class="manual-info-sub">Louise Smith · 2021</div>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+    
+   
+    <div class="ev-section">
+      <h2 class="ev-h2">Course map &amp; GPX</h2>
+      <div id="gu36-map" style="height:380px;border-radius:6px;overflow:hidden;margin:14px 0;border:1px solid rgba(255,255,255,0.08)"></div>
+      <a class="dl-btn" href="/gpx/GU36_Trail_Race.gpx" download>⬇ GPX file download</a>
+
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">2026 winners</h2>
+      <div class="winner-row">
+        <div class="winner-box">
+          <div class="winner-label">Male winner</div>
+          <div class="winner-name">Rob Forbes</div>
+          <div class="winner-time">4:27:32</div>
+        </div>
+        <div class="winner-box">
+          <div class="winner-label">Female winner</div>
+          <div class="winner-name">Sophie Fletcher</div>
+          <div class="winner-time">5:56:04</div>
+        </div>
+      </div>
+      <a href="https://www.greenrockevents.com/results" target="_blank" rel="noopener" style="display:inline-block;margin-top:12px;font-size:11px;color:var(--gu36-primary);text-transform:uppercase;letter-spacing:2px;font-weight:600;cursor:pointer;text-decoration:none">View full results →</a>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">2025 winners</h2>
+      <div class="winner-row">
+        <div class="winner-box">
+          <div class="winner-label">Male winner</div>
+          <div class="winner-name">Mark Jeffreys</div>
+          <div class="winner-time">5:18:19</div>
+        </div>
+        <div class="winner-box">
+          <div class="winner-label">Female winner</div>
+          <div class="winner-name">Claire Moffat</div>
+          <div class="winner-time">6:03:29</div>
+        </div>
+      </div>
+      <a href="https://www.greenrockevents.com/results" target="_blank" rel="noopener" style="display:inline-block;margin-top:12px;font-size:11px;color:var(--gu36-primary);text-transform:uppercase;letter-spacing:2px;font-weight:600;cursor:pointer;text-decoration:none">View full results →</a>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Runner profiles</h2>
+      <p class="ev-p">Read stories from past GU36 runners — first-timers who made the leap to ultra, locals who know every corner of the island, and visitors who fell in love with Guernsey through their feet.</p>
+      <button class="dl-btn">Runner stories (coming soon)</button>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Getting to Guernsey</h2>
+      <p class="ev-p">Not from the island? See our getting here page for flights, ferries and recommended race hotels with exclusive partner rates.</p>
+      <a class="btn btn-ghost" href="/getting-here/">Getting here →</a>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Volunteer</h2>
+      <p class="ev-p">The GU36 needs a fantastic support crew. You can earn free race entry. Everyone gets a coffee.</p>
+      <a class="btn btn-ghost" href="/volunteer/">Sign up to volunteer →</a>
+    </div>
+  </div>
+  <a class="back-link" href="/">← Back to all events</a>
+  <footer class="site-footer">
+    <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
+    <div class="footer-links"><a href="/">Events</a><a href="https://www.facebook.com/m3running" target="_blank">Facebook</a><a href="/getting-here/">Getting here</a><a href="/volunteer/">Volunteer</a><a>Contact</a><a href="/terms/">Terms &amp; conditions</a></div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════ GETTING HERE ═══════════════════════════════════ -->
+<div id="page-getting-here" class="page">
+  <div class="ev-hero ev-hero-gh">
+    <div class="ev-eyebrow" style="color:#7ab8f0">M3 Events · Guernsey</div>
+    <h1 class="ev-title">Getting<br>to Guernsey.</h1>
+    <p class="ev-subtitle">Everything you need to plan your trip — flights, ferries and places to stay, including exclusive rates at our race hotel partners.</p>
+  </div>
+  <div class="ev-body">
+    <div class="ev-section">
+      <h2 class="ev-h2">By air</h2>
+      <p class="ev-p">Guernsey Airport is well connected from across the UK. Journey times from most UK airports are under 90 minutes, making it an easy race weekend trip.</p>
+      <div class="travel-grid">
+        <div class="travel-card">
+          <div class="travel-title">Aurigny</div>
+          <p class="travel-body">Guernsey's own airline flies direct from London Gatwick, Manchester, Bristol, Southampton, Exeter, Norwich and more. Reliable, friendly and often the best value.</p>
+          <a class="travel-link" href="https://www.aurigny.com" target="_blank">aurigny.com →</a>
+        </div>
+        <div class="travel-card">
+          <div class="travel-title">British Airways</div>
+          <p class="travel-body">Route from London Heathrow.</p>
+          <a class="travel-link" href="https://www.britishwairways.com" target="_blank">britishwairways.com →</a>
+        </div>
+      </div>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">By sea</h2>
+      <p class="ev-p">Britanny Ferries operate year-round services to Guernsey from England and France. Islands Unlimited offer summer crossings from Jersey</p>
+      <div class="travel-grid">
+        <div class="travel-card">
+          <div class="travel-title">Britanny Ferries</div>
+          <p class="travel-body">Fast craft and conventional ferry crossings from Poole, Portsmouth, Jersey and St Malo.</p>
+          <a class="travel-link" href="https://www.brittany-ferries.co.uk/" target="_blank">brittany-ferries.co.uk →</a>
+        </div>
+        <div class="travel-card">
+          <div class="travel-title">Islands Unlimited</div>
+          <p class="travel-body">Seasonal passenger ferry from Jersey.</p>
+          <a class="travel-link" href="https://islands-unlimited.com/" target="_blank">islands-unlimited.com/ →</a>
+        </div>
+      </div>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Race hotel partners</h2>
+      <p class="ev-p">We're partnering with a selection of Guernsey hotels to offer M3 Events runners and supporters exclusive rates.</p>
+      <div class="hotel-card">
+        <div>
+          <div class="hotel-name">Partner hotel — coming soon</div>
+          <p class="hotel-detail">St Peter Port · Details and exclusive rate to be confirmed.<br>Sign up to our mailing list to be notified first.</p>
+        </div>
+        <div class="hotel-badge">Rate TBC</div>
+      </div>
+      <div class="hotel-coming">Hotel partners will be confirmed ahead of race season. Sign up to our mailing list on the home page to be first to know about exclusive rates and availability — these tend to go fast around race weekends.</div>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">On the island</h2>
+      <p class="ev-p">Guernsey is compact — approximately 25 square miles — and easy to get around. St Peter Port, where the GU36 starts and finishes, is the main hub with a great range of accommodation, restaurants and cafes within walking distance of the harbour.</p>
+      <div class="travel-grid">
+        <div class="travel-card">
+          <div class="travel-title">Visit Guernsey</div>
+          <p class="travel-body">The official tourism site — accommodation listings, things to do, restaurant guides and everything you need to plan your stay on the island.</p>
+          <a class="travel-link" href="https://www.visitguernsey.com" target="_blank">visitguernsey.com →</a>
+        </div>
+        <div class="travel-card">
+          <div class="travel-title">Getting around</div>
+          <p class="travel-body">Several car hire companies operate from Guernsey Airport. Worth booking ahead for race weekends. Taxis are plentiful island-wide and relatively affordable.</p>
+          <a class="travel-link">Search car hire →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <a class="back-link" href="/">← Back to all events</a>
+  <footer class="site-footer">
+    <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
+    <div class="footer-links"><a href="/">Events</a><a href="https://www.facebook.com/m3running" target="_blank">Facebook</a><a href="/volunteer/">Volunteer</a><a>Contact</a><a href="/terms/">Terms &amp; conditions</a></div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════ VOLUNTEERS ═══════════════════════════════════ -->
+<div id="page-volunteers" class="page">
+  <div class="ev-hero ev-hero-vol">
+    <div class="ev-eyebrow" style="color:#3db87a">M3 Events · Guernsey</div>
+    <h1 class="ev-title">Volunteer<br><span style="color:var(--m3-green)">with M3.</span></h1>
+    <p class="ev-subtitle">Our events only happen because of brilliant people willing to give their time. Come and be part of something special on the island's trails.</p>
+  </div>
+  <div class="ev-body">
+    <div class="ev-section">
+      <h2 class="ev-h2">What you get</h2>
+      <div class="perks-grid">
+        <div class="perk">
+          <span class="perk-icon">☕</span>
+          <div class="perk-title">Free coffee</div>
+          <p class="perk-body">Every volunteer gets a hot drink on us. A small thing that makes a big difference on an early race morning.</p>
+        </div>
+        <div class="perk">
+          <span class="perk-icon">🎟</span>
+          <div class="perk-title">Free race entry</div>
+          <p class="perk-body">Anyone who helps out for the full event will receive entry to the value of the race volunteered at. Our way of saying thank you properly.</p>
+        </div>
+        <div class="perk">
+          <span class="perk-icon">🤝</span>
+          <div class="perk-title">Community</div>
+          <p class="perk-body">Trail running runs on community. Volunteering is the best seat in the house — runners never forget the faces that kept them moving.</p>
+        </div>
+      </div>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Volunteer roles</h2>
+      <div class="role-card">
+        <div class="role-title">Aid station crew</div>
+        <p class="role-body">Man one of our checkpoints along the course. Help runners refuel, record bib numbers, and give the encouragement they need to keep going. This is where the magic happens — tired runners transformed by a friendly face and a hot drink.</p>
+      </div>
+      <div class="role-card">
+        <div class="role-title">Start / finish team</div>
+        <p class="role-body">Registration, bib handout, finish line support and results recording. You'll be the first and last face runners see on race day — make it count. A busy, buzzing, brilliant place to be.</p>
+      </div>
+      <div class="role-card">
+        <div class="role-title">Course marshal</div>
+        <p class="role-body">Stationed at key junctions to direct runners and ensure safety at any road crossings. A crucial role that keeps everyone on track, on course, and moving safely through the island.</p>
+      </div>
+      <div class="role-card">
+        <div class="role-title">Course sweeper</div>
+        <p class="role-body">Follow the final runners in, clearing course markings as you go. A great way to see the full route and support the tail-end heroes — the ones who often need the loudest cheers.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="vol-form">
+    <h2 class="ev-h2" style="margin-bottom:8px">Sign up to volunteer</h2>
+    <form id="volunteer-form">
+    <p class="ev-p" style="margin-bottom:24px">Fill in the form and we'll be in touch with all the details ahead of your chosen event. Volunteers must be aged 18 or older.</p>
+    <div class="form-grid">
+      <div class="field"><label>First name</label><input type="text" name="first_name" placeholder="Jane"/></div>
+      <div class="field"><label>Last name</label><input type="text" name="last_name" placeholder="Smith"/></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Email address</label><input type="email" name="email" placeholder="jane@example.com"/></div>
+      <div class="field"><label>Phone number (optional)</label><input type="tel" name="phone" placeholder="+44 7700 000000"/></div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Which event(s)?</label>
+        <div class="check-group">
+          <div class="check-option">
+            <input type="checkbox" id="ev-ddo" name="event_ddo">
+            <label for="ev-ddo">Donkey Drop Out — 15/16 Aug 2026</label>
+          </div>
+          <div class="check-option">
+            <input type="checkbox" id="ev-gu36" name="event_gu36">
+            <label for="ev-gu36">GU36 — 16 May 2027</label>
+          </div>
+          <div class="check-option">
+            <input type="checkbox" id="ev-any" name="event_any">
+            <label for="ev-any">Any / all future events</label>
+          </div>
+        </div>
+      </div>
+     <div class="field">
+      <label>Preferred role</label>
+      <div class="check-group">
+        <div class="check-option">
+          <input type="checkbox" id="role-any"name="role_any"> 
+          <label for="role-any">No preference</label>
+        </div>
+        <div class="check-option">
+          <input type="checkbox" id="role-aid" name="role_aid">
+          <label for="role-aid">Aid station crew</label>
+        </div>
+        <div class="check-option">
+          <input type="checkbox" id="role-start" name="role_start">
+          <label for="role-start">Start / finish team</label>
+        </div>
+        <div class="check-option">
+          <input type="checkbox" id="role-marshal" name="role_marshal">
+          <label for="role-marshal">Course marshal</label>
+        </div>
+        <div class="check-option">
+          <input type="checkbox" id="role-sweeper" name="role_sweeper">
+          <label for="role-sweeper">Course sweeper</label>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="field" style="margin-bottom:16px">
+      <label>Anything else we should know?</label>
+      <textarea name="other_info" placeholder="Availability, previous volunteering experience, any questions…"></textarea>
+    </div>
+    <div class="cb-row">
+      <input type="checkbox" id="consent1" name="consent_comms">
+      <label class="cb-label" for="consent1">I agree to receive email updates from M3 Events about volunteering opportunities and upcoming races. You can unsubscribe at any time.</label>
+    </div>
+    <div class="cb-row">
+      <input type="checkbox" id="consent2" name="consent_marketing">
+      <label class="cb-label" for="consent2">I'm happy to receive occasional news and offers from M3 Events (optional).</label>
+    </div>
+    <button type="submit" class="btn btn-green" style="margin-top:8px" id="vol-submit">Submit volunteer form</button>
+      <p id="vol-success" style="display:none;margin-top:16px;color:var(--m3-green);font-size:14px;font-style:italic">✓ Thanks! We'll be in touch ahead of the event.</p>
+      <p id="vol-error" style="display:none;margin-top:16px;color:#f0855a;font-size:14px;font-style:italic">Something went wrong — please try again or email us directly.</p>
+    </form>
+  </div>
+
+  <a class="back-link" href="/">← Back to all events</a>
+  <footer class="site-footer">
+    <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
+    <div class="footer-links"><a href="/">Events</a><a href="https://www.facebook.com/m3running" target="_blank">Facebook</a><a href="/getting-here/">Getting here</a><a>Contact</a><a href="/terms/">Terms &amp; conditions</a></div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════ ABOUT ═══════════════════════════════════ -->
+<div id="page-about" class="page">
+  <div class="ev-hero" style="background:#0e1228;border-bottom:4px solid var(--m3-green)">
+    <div class="ev-eyebrow" style="color:var(--m3-green)">Guernsey · Channel Islands</div>
+    <h1 class="ev-title">About<br><span style="color:var(--m3-green)">M3 Events.</span></h1>
+    <p class="ev-subtitle">Three surnames beginning with M. One island. A shared belief that Guernsey's trails deserve extraordinary events.</p>
+  </div>
+  <div class="ev-body">
+    <div class="ev-section">
+      <h2 class="ev-h2">Who we are</h2>
+      <p class="ev-p">M3 Events was founded by three Guernsey runners who wanted to share the island's remarkable terrain with the wider running community. The M stands for each of our surnames - Graham Merfield, Warren Mauger and Nick Mann - three people who've spent years running these cliffs, lanes and coastal paths, and decided it was time to invite more people along.</p>
+      <p class="ev-p">We're not a corporate events company. We're runners who happen to know how to put on a race. Every route is handpicked, every detail is considered, and every event is built to showcase what makes this island special.</p>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Our events</h2>
+      <p class="ev-p">We currently host two events: the Donkey Drop Out backyard ultra in August 2026, and the GU36 round-island ultra in May 2027. More events are in the pipeline — sign up to our mailing list to be first to hear.</p>
+      <a class="btn btn-coral" href="/">View all events</a>
+    </div>
+    <div class="ev-section">
+      <h2 class="ev-h2">Get in touch</h2>
+      <p class="ev-p">Questions about an event? Want to discuss sponsorship or partnership? Fill in the form and we'll get back to you.</p>
+      <form id="contact-form" style="margin-top:16px">
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="field"><label>Your name</label><input type="text" name="contact_name" placeholder="Jane Smith"/></div>
+          <div class="field"><label>Email address</label><input type="email" name="contact_email" placeholder="jane@example.com"/></div>
+        </div>
+        <div class="field" style="margin-bottom:12px">
+          <label>Message</label>
+          <textarea name="contact_message" placeholder="Your question or message…" style="min-height:100px;resize:vertical;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:10px 13px;border-radius:3px;font-family:Barlow,sans-serif;font-size:14px;width:100%"></textarea>
+        </div>
+        <button type="submit" id="contact-submit" class="btn btn-ghost">Send message</button>
+        <p id="contact-success" style="display:none;margin-top:14px;color:var(--m3-green);font-size:14px;font-style:italic">✓ Message sent — we'll be in touch soon.</p>
+        <p id="contact-error" style="display:none;margin-top:14px;color:#f0855a;font-size:14px;font-style:italic">Something went wrong — please try again.</p>
+      </form>
+    </div>
+  </div>
+  <a class="back-link" href="/">← Back to home</a>
+  <footer class="site-footer">
+    <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
+    <div class="footer-links"><a href="/">Events</a><a href="https://www.facebook.com/m3running" target="_blank">Facebook</a><a href="/getting-here/">Getting here</a><a href="/volunteer/">Volunteer</a><a>Contact</a></div>
+  </footer>
+</div>
+<!-- ═══════════════════════════════════ T&Cs ═══════════════════════════════════ -->
+<div id="page-tc" class="page">
+  <div class="ev-hero" style="background:#0e1228;border-bottom:4px solid var(--m3-green)">
+    <div class="ev-eyebrow" style="color:var(--m3-green)">M3 Events · Guernsey</div>
+    <h1 class="ev-title" style="font-size:clamp(32px,4vw,52px)">Terms &amp;<br>Conditions</h1>
+    <p class="ev-subtitle">Please read the following terms carefully. By entering any M3 Events race you are confirming your acceptance of these conditions.</p>
+  </div>
+  <div class="ev-body" style="max-width:780px">
+
+    <div class="ev-section">
+      <p class="ev-p" style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.25)">These terms and conditions apply to all entrants participating in the M3 Events race series. Completion of an entry form or purchase of any entry acknowledges acceptance of these terms.</p>
+    </div>
+
+    <div class="ev-section">
+      <div class="tc-item"><span class="tc-num">1</span><p class="tc-text">The participant is fully responsible for their actions whilst attending any event. This includes the event HQ and the event course itself. M3 Events does not accept responsibility for the actions of the participant, nor the consequences of such actions.</p></div>
+      <div class="tc-item"><span class="tc-num">2</span><p class="tc-text">Each participant upon signing the registration form agrees that they are physically and mentally capable of completing the race route they have signed up to do. If during the event they decide to change their route, they do so at their own risk and must inform a member of the M3 Events team upon their return.</p></div>
+      <div class="tc-item"><span class="tc-num">3</span><p class="tc-text">The event registration form must be completed by a person aged 18 or over. Evidence of age may be requested. Participants under the age of 18 will be allowed to participate but must be accompanied by a participating adult who will be responsible for them. A parent or guardian must sign the registration form on behalf of the underage participant.</p></div>
+      <div class="tc-item"><span class="tc-num">4</span><p class="tc-text">The participant confirms that the kit they have chosen to wear during the event is suitable and sufficient to complete the longest route, regardless of whether this is the chosen route or not.</p></div>
+      <div class="tc-item"><span class="tc-num">5</span><p class="tc-text">During the events, there will be warning signs at appropriate points throughout the route. The absence of these signs does not signal there are no dangers approaching — it is the decision of the participant to decide whether to continue on a section or not.</p></div>
+      <div class="tc-item"><span class="tc-num">6</span><p class="tc-text">Due to the nature of the events, some terrain will be uneven or slippery. It is down to the participant to decide whether they will proceed on that section or not.</p></div>
+      <div class="tc-item"><span class="tc-num">7</span><p class="tc-text">Any marked route is shown for guidance only and M3 Events does not insist that you use the route shown. If the participant chooses to proceed on a section that is not marked, to avoid any obstacles or sections they believe are beyond their capabilities, they do so entirely at their own risk.</p></div>
+      <div class="tc-item"><span class="tc-num">8</span><p class="tc-text">M3 Events reserves the right to shorten or adjust the published route at any time. Participants do not have the right to claim a refund if the route has been shortened.</p></div>
+      <div class="tc-item"><span class="tc-num">9</span><p class="tc-text">Participants must be considerate to other users of footpaths or roads. Upon encountering other users — such as walkers or horse riders — participants are required to pass with care. Where appropriate, participants should stop and wait at the side to allow other users to pass safely.</p></div>
+      <div class="tc-item"><span class="tc-num">10</span><p class="tc-text">Each participant is fully responsible for any fees or costs incurred arising from an accident. This includes, but is not exclusive to, police, air ambulance, fire and rescue, and the ambulance service. If the participant is not able to make the decision to call the emergency services, they agree that a member of the M3 Events team or a member of the public may call for them. The participant still accepts the costs incurred and the consequences of such actions.</p></div>
+      <div class="tc-item"><span class="tc-num">11</span><p class="tc-text">Each participant agrees to assign and grant the right and give permission for M3 Events to use and publish any photographs, films, or videos taken at any M3 Events activity. The participant releases M3 Events from any and all liability from such use and promotion, and authorises the reproduction, sale, copyright, exhibit, broadcast, electronic storage, and distribution of said material without limitation. The participant specifically waives any right to compensation for appearing in any photographs or videos at an M3 Events event.</p></div>
+      <div class="tc-item"><span class="tc-num">12</span><p class="tc-text">If the participant is unable to complete an event they agree to call or return to the event HQ and report to a member of the M3 Events team.</p></div>
+      <div class="tc-item"><span class="tc-num">13</span><p class="tc-text">If you have registered on behalf of someone else, by accepting these terms and conditions you are responsible for making them aware of the terms and are accepting them on their behalf.</p></div>
+      <div class="tc-item"><span class="tc-num">14</span><p class="tc-text">Entry fees cannot be refunded under any circumstances.</p></div>
+      <div class="tc-item"><span class="tc-num">15</span><p class="tc-text">M3 Events reserves the right to cancel any event due to extreme weather conditions. In such an event, each participant's entry will be transferred to a rescheduled date. If a participant cannot make the new date, they may carry their entry to another event within the same series. No refunds will be issued.</p></div>
+            <div class="tc-item"><span class="tc-num">16</span><p class="tc-text">We will only use your personal information as set out in our Privacy Policy.</p></div>
+    </div><!-- closes ev-section -->
+  </div><!-- closes ev-body -->
+  <a class="back-link" href="/">← Back to home</a>
+  <footer class="site-footer">
+    <p>© 2026 M3 Events · Guernsey, Channel Islands</p>
+    <div class="footer-links"><a href="/">Events</a><a href="/getting-here/">Getting here</a><a href="/volunteer/">Volunteer</a><a>Contact</a><a href="/terms/">Terms &amp; Conditions</a></div>
+  </footer>
+</div>
+
+<script>
+// CARTO basemap tiles. The key is domain-restricted to m3events.gg in the CARTO dashboard.
+const CARTO_TILES = 'https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png?key=cb1_4rrh_3_04fa45a35102c24cc7235b9e';
+
+// ── GU36 course map ──
+let gu36MapInitialised = false;
+
+function initGU36Map() {
+  if (gu36MapInitialised) return;
+  const mapEl = document.getElementById('gu36-map');
+  if (!mapEl || typeof L === 'undefined') return;
+  gu36MapInitialised = true;
+
+  const map = L.map('gu36-map', { zoomControl: true, scrollWheelZoom: false });
+
+  L.tileLayer(CARTO_TILES, {
+    attribution: '© OpenStreetMap © CARTO',
+    maxZoom: 17
+  }).addTo(map);
+
+  new L.GPX('/gpx/GU36_Trail_Race.gpx', {
+    async: true,
+    marker_options: { startIconUrl: '', endIconUrl: '', shadowUrl: '' },
+    polyline_options: {
+      color: '#d97706',
+      weight: 4,
+      opacity: 0.85
+    }
+  }).on('loaded', function(e) {
+    map.fitBounds(e.target.getBounds(), { padding: [20, 20] });
+  }).addTo(map);
+}
+// ── DDO map ──
+let ddoMapInitialised = false;
+
+function initDDOMap() {
+  if (ddoMapInitialised) return;
+  const mapEl = document.getElementById('ddo-map');
+  if (!mapEl || typeof L === 'undefined') return;
+  ddoMapInitialised = true;
+  const map = L.map('ddo-map', { zoomControl: true, scrollWheelZoom: false });
+  L.tileLayer(CARTO_TILES, {
+    attribution: '© OpenStreetMap © CARTO',
+    maxZoom: 17
+  }).addTo(map);
+  new L.GPX('/gpx/DDO.gpx', {
+    async: true,
+    marker_options: { startIconUrl: '', endIconUrl: '', shadowUrl: '' },
+    polyline_options: { color: '#7c3aed', weight: 4, opacity: 0.85 }
+  }).on('loaded', function(e) {
+    map.fitBounds(e.target.getBounds(), { padding: [20, 20] });
+  }).addTo(map);
+}
+
+function showTab(id, event) {
+  document.querySelectorAll('.manual-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.manual-tab').forEach(t => t.classList.remove('active'));
+  const panel = document.getElementById('tab-' + id);
+  if (panel) panel.classList.add('active');
+  event.target.classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  // ── Maps (only run where the map element exists) ──
+  initDDOMap();
+  initGU36Map();
+
+  // ── Event cards: whole card clickable, real link inside for crawlers ──
+  document.querySelectorAll('.event-card[data-href]').forEach(function(card) {
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('a')) return;
+      window.location.href = card.getAttribute('data-href');
+    });
+  });
+
+  // ── Mobile nav dropdown ──
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(function(item) {
+    const link = item.querySelector('a');
+    const dropdown = item.querySelector('.nav-dropdown');
+    if (!dropdown) return;
+    link.addEventListener('click', function(e) {
+      const isMobile = window.matchMedia('(hover: none)').matches;
+      if (!isMobile) return;
+      e.preventDefault();
+      const isOpen = item.classList.contains('open');
+      navItems.forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-item')) {
+      navItems.forEach(i => i.classList.remove('open'));
+    }
+  });
+
+  // ── Mailing list signup ──
+  const signupForm = document.getElementById('signup-form');
+  if (signupForm) {
+    signupForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('signup-btn');
+      const email = document.getElementById('signup-email').value;
+      const successMsg = document.getElementById('signup-success');
+      const errorMsg = document.getElementById('signup-error');
+      btn.textContent = 'Sending…';
+      btn.disabled = true;
+      successMsg.style.display = 'none';
+      errorMsg.style.display = 'none';
+      const data = { email: email, subscribed_at: new Date().toLocaleString('en-GB') };
+      fetch('https://hooks.zapier.com/hooks/catch/18013361/uvx5e19/', {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(function() {
+        successMsg.style.display = 'block';
+        signupForm.reset();
+        btn.textContent = 'Signed up ✓';
+      })
+      .catch(function() {
+        errorMsg.style.display = 'block';
+        btn.textContent = 'Sign up';
+        btn.disabled = false;
+      });
+    });
+  }
+
+  // ── Contact form ──
+  const contactForm = document.getElementById('contact-form');
+  if (contactForm) {
+    contactForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('contact-submit');
+      const successMsg = document.getElementById('contact-success');
+      const errorMsg = document.getElementById('contact-error');
+      btn.textContent = 'Sending…';
+      btn.disabled = true;
+      successMsg.style.display = 'none';
+      errorMsg.style.display = 'none';
+      const data = {
+        name:         document.querySelector('[name="contact_name"]').value,
+        email:        document.querySelector('[name="contact_email"]').value,
+        message:      document.querySelector('[name="contact_message"]').value,
+        submitted_at: new Date().toLocaleString('en-GB')
+      };
+      fetch('https://hooks.zapier.com/hooks/catch/18013361/4y18uxk/', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(function() {
+        successMsg.style.display = 'block';
+        contactForm.reset();
+        btn.textContent = 'Sent ✓';
+      })
+      .catch(function() {
+        errorMsg.style.display = 'block';
+        btn.textContent = 'Send message';
+        btn.disabled = false;
+      });
+    });
+  }
+
+  // ── Volunteer form ──
+  const form = document.getElementById('volunteer-form');
+  if (!form) return;
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('vol-submit');
+    const successMsg = document.getElementById('vol-success');
+    const errorMsg = document.getElementById('vol-error');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+    successMsg.style.display = 'none';
+    errorMsg.style.display = 'none';
+    const events = [];
+    if (document.getElementById('ev-ddo').checked)  events.push('Donkey Drop Out – 15/16 Aug 2026');
+    if (document.getElementById('ev-gu36').checked) events.push('GU36 – 16 May 2027');
+    if (document.getElementById('ev-any').checked)  events.push('Any / all future events');
+    const roles = [];
+    if (document.getElementById('role-any').checked)     roles.push('No preference');
+    if (document.getElementById('role-aid').checked)     roles.push('Aid station crew');
+    if (document.getElementById('role-start').checked)   roles.push('Start / finish team');
+    if (document.getElementById('role-marshal').checked) roles.push('Course marshal');
+    if (document.getElementById('role-sweeper').checked) roles.push('Course sweeper');
+    const data = {
+      first_name:        document.querySelector('[name="first_name"]').value,
+      last_name:         document.querySelector('[name="last_name"]').value,
+      email:             document.querySelector('[name="email"]').value,
+      phone:             document.querySelector('[name="phone"]').value,
+      events:            events.join(', ') || 'None selected',
+      roles:             roles.join(', ') || 'None selected',
+      other_info:        document.querySelector('[name="other_info"]').value,
+      consent_comms:     document.getElementById('consent1').checked ? 'Yes' : 'No',
+      consent_marketing: document.getElementById('consent2').checked ? 'Yes' : 'No',
+      submitted_at:      new Date().toLocaleString('en-GB')
+    };
+    fetch('https://hooks.zapier.com/hooks/catch/18013361/uvx2ivu/', {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(function() {
+      successMsg.style.display = 'block';
+      form.reset();
+      btn.textContent = 'Submitted ✓';
+    })
+    .catch(function() {
+      errorMsg.style.display = 'block';
+      btn.textContent = 'Submit volunteer form';
+      btn.disabled = false;
+    });
+  });
+
+}); // end DOMContentLoaded
+</script>
+</body>
+</html>
